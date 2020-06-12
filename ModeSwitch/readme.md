@@ -28,7 +28,7 @@ On the Pop'n Ultimate Controller firmware, HID report ID 5 is a 32bit bitfield :
 - bit  28 is the magic lightMode change request bit
 - bits 24 and 25 encode the requested lightMode if bit 28 is set
 
-This binary opens the USB device whose path is written in devicepath.dat and sends the correct HID report.
+This binary opens the USB device whose path is written in ```devicepath.dat``` and sends the correct HID report.
 
 The autohotkey version finds the path automatically based on VID=2341 and PID=003E.
 
@@ -38,10 +38,10 @@ You can either go into windows device manager and look for the device path in th
 
 ### spicetools
 
-open %appdata%/spicetools.xml, look for a "devid" value starting with \\?\HID#VID_2341&amp;PID_003E
+open ```%appdata%/spicetools.xml```, look for a "devid" value starting with ```\\?\HID#VID_2341&amp;PID_003E```
 
-Note that you'll have to replace "&amp;" occurrences by "&".
+Note that you'll have to replace "```&amp;```" occurrences by "```&```".
 
 ### bemanitools
 
-open %appdata%/DJHACKERS/pnm_v4_25.bin and look for a string starting with \\?\HID#VID_2341&PID_003E
+open ```%appdata%/DJHACKERS/pnm_v4_25.bin``` and look for a string starting with ```\\?\HID#VID_2341&PID_003E```
