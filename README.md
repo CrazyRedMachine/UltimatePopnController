@@ -6,6 +6,10 @@ The goal was to replace the official IO Board from my pop'n cabinet with a DIY c
 
 In combination with the PN5180-cardio project, the whole IO from a Pop'n Music cabinet can be replaced pretty cheaply :)
 
+# Demo
+
+https://www.instagram.com/p/CBWgSMklvvT/
+
 # Acknowledgments
 
 Other pop'n controller codes like Knuckleslee's https://github.com/knuckleslee/RhythmCodes/ or 4yn's https://github.com/4yn/iivx/tree/master/leoo/leoo are widely popular.
