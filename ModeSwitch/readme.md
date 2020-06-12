@@ -8,9 +8,9 @@ While the autohotkey version works perfectly on my computer I couldn't make it w
 
 ## Usage
 
-modeswitch.exe <num>
+modeswitch.exe num
 
-Where <num> can take the values
+Where num can take the value
 
 0 : Reactive mode (AC lighting simulation for emulators)
 
