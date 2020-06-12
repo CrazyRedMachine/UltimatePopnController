@@ -68,7 +68,7 @@ I included pre-compiled binaries and sources in the "ModeSwitch" folder. Refer t
 
 The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet lamps use 12V. Therefore I'm using mosfet transistors to do level shifting (the parts I used were three ULN2003APG chips).
 
-Refer to pinout.png to see how it is all wired to a Pop'n Music cabinet.
+Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 
     LightPins 36 to 52 = Button lights 1 to 9
     LightPins 37 to 53 = Top Neon 1 to 5, Left 1 (blue) 2 (red), Right 1 (blue) 2 (red)
@@ -79,4 +79,4 @@ Refer to pinout.png to see how it is all wired to a Pop'n Music cabinet.
     ButtonPins 4 3 2 = Test, Service, Coin
       connect button pin to ground to trigger button press
 	  
-
+![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout.png?raw=true)
