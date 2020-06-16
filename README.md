@@ -18,6 +18,8 @@ They are usually based on mon's https://github.com/mon/Arduino-HID-Lighting whic
 
 As I needed more gpio than usual, this project was my first time working with Arduino Due and unfortunately the USB HID definitions are not compatible with Leonardo code so a lot of changes had to be made.
 
+The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
+
 # Supported devices and requirements
 
 This code has been tested on Arduino Due. It should still compile for Leonardo provided you redefine the pinout.
