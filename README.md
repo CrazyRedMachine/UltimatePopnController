@@ -70,7 +70,7 @@ I included pre-compiled binaries and sources in the "ModeSwitch" folder. Refer t
 
 # Pinout
 
-The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet lamps use 12V. Therefore I'm using mosfet transistors to do level shifting (the parts I used were three ULN2003APG chips).
+The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet lamps use 12V. Therefore I'm using mosfet transistors to do level shifting (the parts I used were three ULN2003APG chips). You can also buy pre-made level shifters such as this one [https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/], you'd need 2 though as there are 18 lamps to control for a Pop'n cabinet.
 
 Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 
