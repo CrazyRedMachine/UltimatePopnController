@@ -323,7 +323,7 @@ static const byte PROGMEM _hidReportPOPN[] = {
       if (*bitfield>>28&1){
         uint8_t mode = (*bitfield>>24) & 0x0F;
         setLightMode(mode); 
-        *bitfield &= ~(0xFF<<24);
+        *bitfield &= ~((uint32_t)0xFF<<24);
       }
     }
     

@@ -3,6 +3,8 @@
 #if defined(ARDUINO_ARCH_SAM)
 #include <Keypad.h>
 #include <Keyboard.h>
+#else
+#include <EEPROM.h>
 #endif
 #include "POPNHID.h"
 /* 125µs delay is 1 frame on highspeed USB spec */
@@ -81,6 +83,12 @@ void setup() {
   delay(500);
   Keyboard.release(136+83);
   */
+#else
+  uint8_t lightMode;
+  EEPROM.get(0, lightMode);
+  if (lightMode < 0 || lightMode > 3)
+    lightMode = 2;
+  POPNHID.setLightMode(lightMode);
 #endif
   
   //boot animation
@@ -178,6 +186,9 @@ void loop() {
       uint8_t mode = POPNHID.getLightMode()+1;
       if (mode > 3) mode = 0;
       POPNHID.setLightMode(mode);
+#if defined(ARDUINO_ARCH_AVR)
+      EEPROM.put(0, mode);
+#endif
     }
     else if (!(buttonsState&2)) {
       modeChanged = false;

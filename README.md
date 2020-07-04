@@ -8,7 +8,9 @@ In combination with the PN5180-cardio project, the whole IO from a Pop'n Music c
 
 # Leonardo version
 
-Because I loved the ModeSwitch feature, I adapted the code so it could compile for Leonardo as well. Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, duh)
+Because I loved the ModeSwitch feature, I adapted the code so it could compile for Leonardo as well. Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, duh).
+
+I'm also taking advantage of the Leonardo EEPROM. On manually switching, the resulting lightmode is stored in the EEPROM so that it persists on controller disconnect/reconnect.
 
 # Demo
 
