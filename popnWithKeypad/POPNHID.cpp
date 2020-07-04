@@ -24,13 +24,21 @@ static const byte PROGMEM _hidReportPOPN[] = {
     0x19, 0x01,                    /*     USAGE_MINIMUM (Button 1) */ 
     0x29, 0x0c,                    /*     USAGE_MAXIMUM (Button 12)*/ 
     0x15, 0x00,                    /*     LOGICAL_MINIMUM (0) */ 
-    0x25, 0x01,                    /*     LOGICAL_MAXIMUM (1) */ 
+    0x25, 0x01,                    /*     LOGICAL_MAXIMUM (1) */
+#if defined(ARDUINO_ARCH_SAM) 
     0x95, 0x0c,                    /*     REPORT_COUNT (12) */ 
+#else
+    0x95, 0x0b,                    /*     REPORT_COUNT (11) */ 
+#endif
     0x75, 0x01,                    /*     REPORT_SIZE (1) */ 
     0x81, 0x02,                    /*     INPUT (Data,Var,Abs) */ 
-    /* Reserved 4 bits */ 
+    /* Reserved bits */ 
     0x95, 0x01,                      /*   REPORT_COUNT (1) */ 
+#if defined(ARDUINO_ARCH_SAM)
     0x75, 0x04,                      /*   REPORT_SIZE (4) */ 
+#else
+    0x75, 0x05,                      /*   REPORT_SIZE (5) */ 
+#endif
     0x81, 0x03,                      /*   INPUT (Cnst,Var,Abs) */
     
     /*Lights */
@@ -127,6 +135,7 @@ static const byte PROGMEM _hidReportPOPN[] = {
     0x95, 0x01,                    /*       REPORT_COUNT (1) */ 
     0x91, 0x02,                    /*       OUTPUT (Data,Var,Abs) */ 
     0xc0,                          /*     END_COLLECTION */ 
+#if defined(ARDUINO_ARCH_SAM)
     /*Led 10 */ 
     0x05, 0x0a,                    /*     USAGE_PAGE (Ordinals) */ 
     0x09, 0x0a,                    /*     USAGE (Instance 10) */ 
@@ -221,6 +230,12 @@ static const byte PROGMEM _hidReportPOPN[] = {
     0x95, 0x01,            /*   REPORT_COUNT (1) */ 
     0x75, 0x0E,            /*   REPORT_SIZE (14) */ 
     0x91, 0x03,            /*   OUTPUT (Cnst,Var,Abs) */ 
+#else
+    /*  Reserved 23 bits */ 
+    0x95, 0x01,            /*   REPORT_COUNT (1) */ 
+    0x75, 0x17,            /*   REPORT_SIZE (23) */ 
+    0x91, 0x03,            /*   OUTPUT (Cnst,Var,Abs) */ 
+#endif
     /*Footer */ 
     0xc0                          /* END_COLLECTION */ 
 };
@@ -317,12 +332,21 @@ static const byte PROGMEM _hidReportPOPN[] = {
       uint32_t leds = (*bitfield|buttonsState);
       if (invert)
         leds = ~leds;
-      for(int i = 0; i < 18; i++) {
+      for(int i = 0; i < 9; i++) {
         if (leds>>i&1)
           digitalWrite(LightPins[i],HIGH);
         else
           digitalWrite(LightPins[i],LOW);
       }
+#if defined(ARDUINO_ARCH_SAM)
+      for(int i = 9; i < 18; i++) {
+        if (leds>>i&1)
+          digitalWrite(LightPins[i],HIGH);
+        else
+          digitalWrite(LightPins[i],LOW);
+      }
+#endif
+      
     }
 
     int POPNHID_::sendState(uint32_t buttonsState){

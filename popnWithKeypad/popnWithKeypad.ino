@@ -1,7 +1,9 @@
 #define BOUNCE_WITH_PROMPT_DETECTION
 #include <Bounce2.h>
+#if defined(ARDUINO_ARCH_SAM)
 #include <Keypad.h>
 #include <Keyboard.h>
+#endif
 #include "POPNHID.h"
 /* 125µs delay is 1 frame on highspeed USB spec */
 #define REPORT_DELAY 125
@@ -9,12 +11,19 @@
 POPNHID_ POPNHID;
 
 /* Buttons + Lights declarations */
+#if defined(ARDUINO_ARCH_SAM)
 byte LightPins[] = {36, 38, 40, 42, 44, 46, 48, 50, 52, 37, 39, 41, 43, 45, 47, 49, 51, 53};
 byte ButtonPins[] = {5, 6, 7, 8, 9, 10, 11, 12, 13, 4, 3, 2};
+#else
+uint8_t LightPins[] = {11,12,13,23,22,21,20,19,18};
+uint8_t ButtonPins[] = {0,1,2,3,4,5,6,7,8,9,10};
+#endif
+
 const byte ButtonCount = sizeof(ButtonPins) / sizeof(ButtonPins[0]);
 const byte LightCount = sizeof(LightPins) / sizeof(LightPins[0]);
 Bounce buttons[ButtonCount];
 
+#if defined(ARDUINO_ARCH_SAM)
 /* Keypad declarations */
 const byte ROWS = 4;
 const byte COLS = 3;
@@ -47,6 +56,7 @@ byte colPins[COLS] = {A4, A6, A2}; //connect to the column pinouts of the keypad
 */
 
 Keypad kpd = Keypad( makeKeymap(numpad), rowPins, colPins, ROWS, COLS );
+#endif
 
 /* SETUP */
 void setup() {
@@ -61,15 +71,17 @@ void setup() {
     pinMode(LightPins[i], OUTPUT);
   }
   
+#if defined(ARDUINO_ARCH_SAM)
   kpd.setDebounceTime(30);
   Keyboard.begin();
-
+  
 /* activate numlock if you are not using the toprow keys */
 /*  delay(2000);
   Keyboard.press(136 + 83);
   delay(500);
   Keyboard.release(136+83);
   */
+#endif
   
   //boot animation
   uint16_t anim[] = {1, 4, 16, 64, 256, 128, 32, 8, 2};
@@ -114,7 +126,9 @@ void loop() {
     /* Reactive mode, locally determined lamp data */
     case 0:
       but_lights(buttonsState & 0x1ff);
+#if defined(ARDUINO_ARCH_SAM)     
       reactive_neon(buttonsState & 0x1ff);
+#endif
       break;
     /* HID mode, only based on received HID data */
     case 1:
@@ -130,6 +144,7 @@ void loop() {
       break;
   }
   
+#if defined(ARDUINO_ARCH_SAM)
   /* KEYPAD */
   if (kpd.getKeys())
   {
@@ -154,6 +169,7 @@ void loop() {
       }
     }
   }
+#endif
   
   /* MANUAL LIGHTMODE UPDATE */
   if ( buttonsState & 1024 ) {
@@ -170,6 +186,7 @@ void loop() {
 }
 
 
+#if defined(ARDUINO_ARCH_SAM)
 /* Manage pillars and top neons in reactive mode */
 uint16_t neon_anim[] = {16, 24, 28, 30, 31, 30, 28, 24};
 int neon_anim_index = 0;
@@ -256,6 +273,7 @@ if (pillar_lit)
    */
   neon_lights(neons);
 }
+#endif
 
 /* Light up button lights according to bitfield */
 void but_lights(uint16_t lightDesc) {
@@ -283,7 +301,9 @@ void neon_lights(uint16_t lightDesc) {
 void animate(uint16_t* tab, uint8_t n, int mswait) {
   for (int i = 0; i < n; i++) {
     but_lights(tab[i]);
+#if defined(ARDUINO_ARCH_SAM)
     neon_lights(tab[i]);
+#endif
     delay(mswait);
   }
 }

@@ -1,10 +1,14 @@
 # Ultimate Pop'n Controller
 
-USB HID controller with 12 buttons, 18 lights, 12-key matrix numpad and nice programmable features.
+USB HID controller with 12 buttons, 18 lights, 12-key matrix numpad, high polling rate and nice programmable features.
 
 The goal was to replace the official IO Board from my pop'n cabinet with a DIY controller instead, for stability reasons (Konami IO boards are prone to failure, most Pop'n Music cabinets in the wild have broken lamps...) but also for QoL improvements (this allows me to use my panel system-wide and not only in-game, which means I can control a multiboot menu, play with emulators etc..).
 
 In combination with the PN5180-cardio project, the whole IO from a Pop'n Music cabinet can be replaced pretty cheaply :)
+
+# Leonardo version
+
+Because I loved the ModeSwitch feature, I adapted the code so it could compile for Leonardo as well. Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, duh)
 
 # Demo
 
@@ -22,7 +26,7 @@ The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
 
 # Supported devices and requirements
 
-This code has been tested on Arduino Due. It should still compile for Leonardo provided you redefine the pinout.
+This code was designed for Arduino Due. It will compile for Leonardo as well but some features are stripped due to lack of gpio (only 11 buttons and 9 lights, no keypad). The HID descriptor is updated accordingly depending on the selected target board.
 
 The keypad code requires the Keypad library by Mark Stanley and Alexander Brevig. It can be installed from the Arduino IDE Library manager.
 
@@ -68,7 +72,7 @@ You can either press button 2 (left yellow button) while holding service to swit
 
 I included pre-compiled binaries and sources in the "ModeSwitch" folder. Refer to readme.md inside that folder for more details.
 
-# Pinout
+# Pinout (DUE)
 
 The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet lamps use 12V. Therefore I'm using mosfet transistors to do level shifting (the parts I used were three ULN2003APG chips). You can also buy pre-made level shifters such as this one https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/ (you'd need two of them since there are 18 lamps to control for a Pop'n cabinet).
 
@@ -84,3 +88,9 @@ Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
       connect button pin to ground to trigger button press
 	  
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout.png?raw=true)
+
+# Pinout (Leonardo)
+
+Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
+
+![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
