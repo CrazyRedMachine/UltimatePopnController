@@ -26,9 +26,13 @@ As I needed more gpio than usual, this project was my first time working with Ar
 
 The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
 
+Switch debouncing is done with Bounce2 library by Thomas O Fredericks.
+
 # Supported devices and requirements
 
 This code was designed for Arduino Due. It will compile for Leonardo as well but some features are stripped due to lack of gpio (only 11 buttons and 9 lights, no keypad). The HID descriptor is updated accordingly depending on the selected target board.
+
+The controller code requires the Bounce2 library by Thomas O Fredericks. It can be installed from the Arduino IDE Library manager.
 
 The keypad code requires the Keypad library by Mark Stanley and Alexander Brevig. It can be installed from the Arduino IDE Library manager.
 
