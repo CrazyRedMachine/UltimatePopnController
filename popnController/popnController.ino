@@ -7,7 +7,7 @@
 #include <EEPROM.h>
 #endif
 #include "POPNHID.h"
-/* 125µs delay is 1 frame on highspeed USB spec */
+/* 1 frame (as declared in POPNHID.cpp) on highspeed USB spec is 125µs */
 #define REPORT_DELAY 125
 #define MILLIDEBOUNCE 15
 POPNHID_ POPNHID;
@@ -118,7 +118,7 @@ void loop() {
   }
 
   /* USB DATA */
-  if ( ( (micros() - lastReport) >= REPORT_DELAY) )//&& (buttonsState != prevButtonsState) )
+  if ( ( (micros() - lastReport) >= REPORT_DELAY) )
   {
     POPNHID.sendState(buttonsState);
     lastReport = micros();
@@ -196,6 +196,40 @@ void loop() {
   }
 }
 
+/* Light up button lights according to bitfield */
+void but_lights(uint16_t lightDesc) {
+  for (int i = 0; i < 9; i++) {
+    if ((lightDesc >> i) & 1) {
+      digitalWrite(LightPins[i], HIGH);
+    }    else  {
+      digitalWrite(LightPins[i], LOW);
+    }
+  }
+}
+
+/* Light up pillars and top neons according to bitfield */
+void neon_lights(uint16_t lightDesc) {
+  for (int i = 0; i < 9; i++) {
+    if ((lightDesc >> i) & 1) {
+      digitalWrite(LightPins[i + 9], HIGH);
+    }    else  {
+      digitalWrite(LightPins[i + 9], LOW);
+    }
+  }
+}
+
+/* Display animation on the cab according to a bitfield array */
+void animate(uint16_t* tab, uint8_t n, int mswait) {
+  for (int i = 0; i < n; i++) {
+    but_lights(tab[i]);
+#if defined(ARDUINO_ARCH_SAM)
+    neon_lights(tab[i]);
+#endif
+    delay(mswait);
+  }
+}
+
+/* ARDUINO DUE ONLY FUNCTIONS */
 
 #if defined(ARDUINO_ARCH_SAM)
 /* Manage pillars and top neons in reactive mode */
@@ -286,37 +320,5 @@ if (pillar_lit)
 }
 #endif
 
-/* Light up button lights according to bitfield */
-void but_lights(uint16_t lightDesc) {
-  for (int i = 0; i < 9; i++) {
-    if ((lightDesc >> i) & 1) {
-      digitalWrite(LightPins[i], HIGH);
-    }    else  {
-      digitalWrite(LightPins[i], LOW);
-    }
-  }
-}
-
-/* Light up pillars and top neons according to bitfield */
-void neon_lights(uint16_t lightDesc) {
-  for (int i = 0; i < 9; i++) {
-    if ((lightDesc >> i) & 1) {
-      digitalWrite(LightPins[i + 9], HIGH);
-    }    else  {
-      digitalWrite(LightPins[i + 9], LOW);
-    }
-  }
-}
-
-/* Display animation on the cab according to a bitfield array */
-void animate(uint16_t* tab, uint8_t n, int mswait) {
-  for (int i = 0; i < n; i++) {
-    but_lights(tab[i]);
-#if defined(ARDUINO_ARCH_SAM)
-    neon_lights(tab[i]);
-#endif
-    delay(mswait);
-  }
-}
 
 
