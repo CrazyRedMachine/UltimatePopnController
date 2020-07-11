@@ -8,15 +8,15 @@ While the autohotkey version works perfectly on my computer I couldn't make it w
 
 ## Usage
 
-modeswitch.exe num
+```modeswitch.exe <num>```
 
-Where num can take the value
+Where ``<num>`` can take the value
 
-0 : Reactive mode (AC lighting simulation for emulators)
+0 : Simulated mode (Reactive buttons + AC lighting simulation for emulators)
 
 1 : HID only (original AC mode)
 
-2 : Mixed (AC mode with lights from any button pressed)
+2 : Mixed (AC mode combined with lights from any button pressed)
 
 3 : Invert (Like Mixed except ON is OFF and vice versa)
 
@@ -34,14 +34,16 @@ The autohotkey version finds the path automatically based on VID=2341 and PID=00
 
 ## How to retrieve devicepath (for the C version)
 
-You can either go into windows device manager and look for the device path in the Arduino Due advanced properties, or the easiest way is to look at the value inside spicetools or bemanitools configuration files.
+The included devicepath.dat should work with both Due and Leonardo versions out of the box, but in case you get the message ``Couldn't open device. Make sure devicepath.dat contains the correct path.`` and you are sure the device is plugged in, you can either go into windows device manager and look for the device path in the advanced properties of your arduino device, or the easiest way is to look at the value inside spicetools or bemanitools configuration files.
+
+The devicepath.dat should contain a line with only the device path, and unix style end of line.
 
 ### spicetools
 
-open ```%appdata%/spicetools.xml```, look for a "devid" value starting with ```\\?\HID#VID_2341&amp;PID_003E```
+open ```%appdata%/spicetools.xml```, look for a "devid" value starting with ```\\?\HID#VID_2341&amp;PID_003E``` (Due) or ```\\?\HID#VID_2341&amp;PID_8036``` (Leonardo)
 
 Note that you'll have to replace "```&amp;```" occurrences by "```&```".
 
 ### bemanitools
 
-open ```%appdata%/DJHACKERS/pnm_v4_25.bin``` and look for a string starting with ```\\?\HID#VID_2341&PID_003E```
+open ```%appdata%/DJHACKERS/pnm_v4_25.bin``` and look for a string starting with ```\\?\HID#VID_2341&PID_003E``` (Due) or ```\\?\HID#VID_2341&PID_8036``` (Leonardo)
