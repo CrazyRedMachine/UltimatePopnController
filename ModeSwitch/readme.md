@@ -36,7 +36,7 @@ The autohotkey version finds the path automatically based on VID=2341 and PID=00
 
 The included devicepath.dat should work with both Due and Leonardo versions out of the box, but in case you get the message ``Couldn't open device. Make sure devicepath.dat contains the correct path.`` and you are sure the device is plugged in, you can either go into windows device manager and look for the device path in the advanced properties of your arduino device, or the easiest way is to look at the value inside spicetools or bemanitools configuration files.
 
-The devicepath.dat should contain a line with only the device path, and unix style end of line.
+devicepath.dat file should contain the device path on its own on a single line. Multiple paths on multiple lines should work too in which case it will open the first valid path it finds.
 
 ### spicetools
 

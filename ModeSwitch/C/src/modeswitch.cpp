@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
     file = fopen("devicepath.dat", "r");
     while ( fgets(path,256,file) != NULL )
     {
+        path[strcspn(path, "\r\n")] = 0;
         hidHandle = CreateFile(path, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
         if ( hidHandle != INVALID_HANDLE_VALUE )
             break;
