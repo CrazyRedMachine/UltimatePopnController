@@ -38,6 +38,8 @@ The included devicepath.dat should work with both Due and Leonardo versions out 
 
 devicepath.dat file should contain the device path on its own on a single line. Multiple paths on multiple lines should work too in which case it will open the first valid path it finds.
 
+If no valid path is found or if there is no `devicepath.dat` file, it will attempt to open the default paths from the Due and Leonardo versions (same as the ones found in this included devicepath file).
+ 
 ### spicetools
 
 open ```%appdata%/spicetools.xml```, look for a "devid" value starting with ```\\?\HID#VID_2341&amp;PID_003E``` (Due) or ```\\?\HID#VID_2341&amp;PID_8036``` (Leonardo)

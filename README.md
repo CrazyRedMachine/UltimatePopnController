@@ -48,6 +48,12 @@ The 00 key is mapped to comma (for direct compatibility with spicetools) and the
 
 It also has a cool light animation on boot which you can easily adapt to your liking :)
 
+## ezusb driver
+
+The I/O is HID so it can be mapped with the usual IO emulation tools, but it can also be used without emulation, just like an official IOBoard, provided you replace the original `ezusb.dll` file with the one from this repo.
+
+This way the firmware is fully compatible with anything that works on an official cabinet (PopnForwarder (a bit silly but why not :D), DJMame...)
+
 ## Light modes
 
 There are 4 different modes :
