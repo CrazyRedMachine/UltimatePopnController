@@ -129,7 +129,15 @@ void loop() {
   }  
   
   /* LAMPS */
-  switch (POPNHID.getLightMode())
+  uint8_t mode = POPNHID.getLightMode();
+  /* mixed mode will behave sometimes like HID, sometimes like reactive */
+  if (mode == 2){
+      if ((millis()-POPNHID.getLastHidUpdate()) > 3000)
+        mode = 0;
+      else
+        mode = 1;
+  }
+  switch (mode)
   {
     /* Reactive mode, locally determined lamp data */
     case 0:
@@ -142,13 +150,15 @@ void loop() {
     case 1:
       POPNHID.updateLeds(0, false);
       break;
-    /* Mixed inverse mode, received HID data and button state are combined then inverted */
-    case 3:
+    /* Combined inverse mode, received HID data and button state are combined then inverted */
+    case 4:
       POPNHID.updateLeds(buttonsState & 0x1ff, true);
       break;
-    /* Mixed mode, received HID data and button state are combined */
-    default:
+    /* Combined mode, received HID data and button state are combined */
+    case 3:
       POPNHID.updateLeds(buttonsState & 0x1ff, false);
+      break;
+    default:
       break;
   }
   
@@ -184,7 +194,7 @@ void loop() {
     if ( (buttonsState & 2) && (modeChanged == false)) {
       modeChanged = true;
       uint8_t mode = POPNHID.getLightMode()+1;
-      if (mode > 3) mode = 0;
+      if (mode > 4) mode = 0;
       POPNHID.setLightMode(mode);
 #if defined(ARDUINO_ARCH_AVR)
       EEPROM.put(0, mode);
@@ -319,6 +329,3 @@ if (pillar_lit)
   neon_lights(neons);
 }
 #endif
-
-
-

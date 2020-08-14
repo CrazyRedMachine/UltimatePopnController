@@ -53,9 +53,16 @@ class POPNHID_ : public PluggableUSBModule {
     uint8_t getLightMode();
     void setLightMode(uint8_t mode);
     
+    /**
+     * getter for lastHidUpdate protected field.
+     */
+    unsigned long getLastHidUpdate();
+    
   protected:
-    /* current lightMode (0 = reactive, 1 = HID only, 2 = mixed (HID+button presses), 3 = mixed invert) */
+    /* current lightMode (0 = reactive, 1 = HID only, 2 = mixed (HID+reactive auto-switch), 3 = combined (HID+button presses), 4 = combined invert) */
     uint8_t lightMode = 2;
+    /* timestamp of last received HID report for lightMode 3 */
+    unsigned long lastHidUpdate = 0;
     /* byte array to receive HID reports from the PC */
     byte led_data[5];
     

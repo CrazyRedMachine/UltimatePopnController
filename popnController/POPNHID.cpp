@@ -286,6 +286,7 @@ static const byte PROGMEM _hidReportPOPN[] = {
       if (requestType == REQUEST_HOSTTODEVICE_CLASS_INTERFACE) {
         if (request == HID_SET_REPORT) {
           if(setup.wValueH == HID_REPORT_TYPE_OUTPUT && setup.wLength == 5){
+            lastHidUpdate = millis();
             USB_RecvControl(led_data, 5);
             return true;
           }
@@ -309,9 +310,13 @@ static const byte PROGMEM _hidReportPOPN[] = {
     uint8_t POPNHID_::getLightMode(){
       return lightMode;
     }
-
+    
+    unsigned long POPNHID_::getLastHidUpdate(){
+      return lastHidUpdate;
+    }
+    
     void POPNHID_::setLightMode(uint8_t mode){
-      if ((mode > 3) || (mode < 0)) {
+      if ((mode > 4) || (mode < 0)) {
         lightMode = 2;
         return;
       }

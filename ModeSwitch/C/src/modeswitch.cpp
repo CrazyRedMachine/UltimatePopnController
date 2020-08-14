@@ -1,6 +1,3 @@
-/* TO BE COMPILED WITH MINGW */
-/* Visual C++ compilation didn't work for me on the BemaniPC (invalid win32 application) */
-#define WINVER 0x0500
 #include <windows.h>
 #include <fstream>
 
@@ -68,7 +65,7 @@ int main(int argc, char* argv[])
     }
 
     mode = atoi(argv[1]);
-    if ( mode < 0 || mode > 3 )
+    if ( mode < 0 || mode > 4 )
     {
         printf("Invalid mode value %d\r\n", mode);
         return 2;
@@ -103,7 +100,10 @@ int main(int argc, char* argv[])
                 printf("(mixed)\r\n");
                 break;
             case 3:
-                printf("(invert)\r\n");
+                printf("(combined)\r\n");
+                break;
+            case 4:
+                printf("(combined invert)\r\n");	
         }
     }
     else

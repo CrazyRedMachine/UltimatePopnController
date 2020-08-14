@@ -15,7 +15,7 @@ if 0 < 1  ; The left side of a non-expression if-statement is always the name of
 
 param := %A_Index%
 mode := %param% + 16
-if (mode > 19) or (mode < 16){
+if (mode > 21) or (mode < 16){
  MsgBox, Incorrect value %mode%
  ExitApp
 }

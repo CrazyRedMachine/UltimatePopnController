@@ -56,7 +56,7 @@ This way the firmware is fully compatible with anything that works on an officia
 
 ## Light modes
 
-There are 4 different modes :
+There are 5 different modes :
 
 ### Reactive mode
 
@@ -71,6 +71,10 @@ The top neons follow a fill-empty pattern whose speed is dynamically adjusted wi
 This is the original IO board mode where only messages from the game can control the lamps.
 
 ### Mixed mode (default mode)
+
+This mode behaves like HID mode as soon as messages are received. If 3 seconds elapse without any received message, the firmware switches to reactive behavior (and will switch back to HID as soon as new HID messages are received).
+
+### Combined mode
 
 This combines the HID messages with button presses for instant lighting (you don't have to wait for the game to register the input and send a message back to light the lamp, and as a bonus it also allows you to play with the lights while the cabinet is booting ;) ).
 
