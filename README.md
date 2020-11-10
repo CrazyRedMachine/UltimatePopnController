@@ -123,6 +123,6 @@ Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 
 Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
 
-![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
+![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/PSX/pinout_leonardo.png?raw=true)
 
 For ACK (TXLED aka PD5) and SS (RXLED aka PB0) you have to solder new headers or cables directly on the leonardo PCB. For the PSX controller function to work properly you need to short SS to ground (leonardo doesn't work well as SPI slave otherwise, which is why we cannot use the "attention" line from the controller cable unfortunately).
