@@ -28,6 +28,8 @@ The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
 
 Switch debouncing is done with Bounce2 library by Thomas O Fredericks.
 
+PSX Controller code is based on busslave's PSX_RECEIVER.cpp
+
 # Supported devices and requirements
 
 This code was designed for Arduino Due. It will compile for Leonardo as well but some features are stripped due to lack of gpio (only 11 buttons and 9 lights, no keypad). The HID descriptor is updated accordingly depending on the selected target board.
@@ -37,6 +39,18 @@ The controller code requires the Bounce2 library by Thomas O Fredericks. It can 
 The keypad code requires the Keypad library by Mark Stanley and Alexander Brevig. It can be installed from the Arduino IDE Library manager.
 
 # Features
+
+## Playstation Controller (Leonardo only, Due coming soon)
+
+This controller can be used as a playstation controller for Pop'n Music CS versions.
+
+Note that this requires a couple hardware mods in order to work as we are using two extra pins (SS and ACK, on the RX and TX leds aka PB0 and PD5) which are not readily available on the pre-soldered headers.
+
+Of course you'll need either a dualshock breakout board or a dualshock extension cable for it to work.
+
+Refer to the pinout to know how to wire the controller plug to the arduino.
+
+**Note:** This is PoC code, I'll try to port a more complete dualshock implementation soon and make it Due compatible as well
 
 ## I/O
 
@@ -110,3 +124,5 @@ Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
 
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
+
+For ACK (TXLED aka PD5) and SS (RXLED aka PB0) you have to solder new headers or cables directly on the leonardo PCB. For the PSX controller function to work properly you need to short SS to ground (leonardo doesn't work well as SPI slave otherwise, which is why we cannot use the "attention" line from the controller cable unfortunately).

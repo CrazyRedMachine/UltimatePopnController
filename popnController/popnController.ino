@@ -5,6 +5,21 @@
 #include <Keyboard.h>
 #else
 #include <EEPROM.h>
+/* PSX DEFINE */
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+#define SPI_PORT PORTB
+#define SPI_PINS PINB
+#define SPI_DDR  DDRB
+#define SPI_PINS  PINB
+#define ACK_PIN   5 //PB1
+#define ATT_PIN   0 //~SS
+#define CMD_PIN   2 //MOSI
+#define DATA_PIN  3 //MISO
+#define CLK_PIN   1 //SCK
+#define DATA_LEN 5
+/* /PSX DEFINE */
 #endif
 #include "POPNHID.h"
 /* 1 frame (as declared in POPNHID.cpp) on highspeed USB spec is 125µs */
@@ -58,6 +73,121 @@ byte colPins[COLS] = {A4, A6, A2}; //connect to the column pinouts of the keypad
 */
 
 Keypad kpd = Keypad( makeKeymap(numpad), rowPins, colPins, ROWS, COLS );
+#else
+/* PSX globals */
+volatile uint8_t data_buff[DATA_LEN]={0x41,0x5A,0xBF,0xFF,0xFF};//Reply.
+volatile uint8_t command_buff[DATA_LEN]={0x01,0x42,0x00,0x00,0x00};
+
+volatile uint8_t curr_byte=0;
+volatile uint8_t next_byte=0;
+
+byte b4;
+byte b5;
+
+void convertPopn(uint32_t buttons){
+
+    b4 = 0xFF;
+    b5 = 0xFF;
+    
+    if (((buttons >> 9) & 1)) {
+        b4 &= ~((unsigned char) 0x01);
+    } else {
+        b4 |= ((unsigned char) 0x01);
+    }
+    if (((buttons >> 10) & 1)) {
+        b4 &= ~((unsigned char) 0x08);
+    } else {
+        b4 |= ((unsigned char) 0x08);
+    }
+    
+    if (((buttons >> 0) & 1)) {
+        b5 &= ~((unsigned char) 0x10);
+    } else {
+        b5 |= ((unsigned char) 0x10);
+    }
+    if (((buttons >> 1) & 1)) {
+        b5 &= ~((unsigned char) 0x20);
+    } else {
+        b5 |= ((unsigned char) 0x20);
+    }
+    if (((buttons >> 2) & 1)) {
+        b5 &= ~((unsigned char) 0x08);
+    } else {
+        b5 |= ((unsigned char) 0x08);
+    }
+    if (((buttons >> 3) & 1)) {
+        b5 &= ~((unsigned char) 0x40);
+    } else {
+        b5 |= ((unsigned char) 0x40);
+    }
+    if (((buttons >> 4) & 1)) {
+        b5 &= ~((unsigned char) 0x04);
+    } else {
+        b5 |= ((unsigned char) 0x04);
+    }
+    if (((buttons >> 5) & 1)) {
+        b5 &= ~((unsigned char) 0x80);
+    } else {
+        b5 |= ((unsigned char) 0x80);
+    }
+    if (((buttons >> 6) & 1)) {
+        b5 &= ~((unsigned char) 0x02);
+    } else {
+        b5 |= ((unsigned char) 0x02);
+    }
+    if (((buttons >> 7) & 1)) {
+        b4 &= ~((unsigned char) 0x10);
+    } else {
+        b4 |= ((unsigned char) 0x10);
+    }
+    if (((buttons >> 8) & 1)) {
+        b5 &= ~((unsigned char) 0x01);
+    } else {
+        b5 |= ((unsigned char) 0x01);
+    }
+    // left down right always held with popn controller
+    b4 &= 0x1F;
+    
+    data_buff[2] = b4;
+    data_buff[3] = b5;
+    
+}
+ISR(SPI_STC_vect) {  
+  uint8_t inbyte=SPDR;
+
+  if (inbyte==command_buff[curr_byte]) {    
+    SPDR = data_buff[curr_byte];
+    curr_byte++;
+    if (curr_byte<DATA_LEN) {//ACK low.
+      //SPI_PORT &= ~(1<<ACK_PIN);
+      PORTD &= ~(1<<5);//set HIGH
+    // simulate open drain
+    //  SPI_DDR |= (1<<ACK_PIN);//output
+    //  SPI_PORT &= ~(1<<ACK_PIN);//set low (simulate open collector LOW)
+    
+      _delay_us(5);
+    //SPI_PORT |= (1<<ACK_PIN);
+     PORTD |= (1<<5);//set HIGH
+  
+    // simulate open drain
+    //  SPI_DDR &= ~(1<<ACK_PIN);//input
+    //  SPI_PORT |= (1<<ACK_PIN);//set high (simulate open collector Hi-Z)
+     
+    } else {
+      SPDR = 0xFF;
+      curr_byte=0;
+    }
+  } else {
+    SPDR = 0xFF;
+    curr_byte=0;
+  }
+  
+   SPI_DDR |= (1<<ATT_PIN);//out
+   SPI_PORT |= (1<<ATT_PIN);//set HIGH  
+   _delay_us(5);
+   SPI_PORT &= ~(1<<ATT_PIN);//set HIGH  
+}
+/* /PSX globals */
 #endif
 
 /* SETUP */
@@ -84,11 +214,40 @@ void setup() {
   Keyboard.release(136+83);
   */
 #else
-  uint8_t lightMode;
+  uint8_t lightMode = 2;
   EEPROM.get(0, lightMode);
   if (lightMode < 0 || lightMode > 3)
     lightMode = 2;
   POPNHID.setLightMode(lightMode);
+
+  /* PSX setup */
+  // use TXLED as ACK
+ // DDRD |= (1<<5);//output
+  PORTD |= (1<<5);//set HIGH
+
+  SPI_DDR |= (1<<DATA_PIN);//output
+  SPI_PORT |= (1<<DATA_PIN);//set HIGH  
+
+  SPI_DDR |= (1<<ATT_PIN);//out
+  delay(500);
+  SPI_PORT |= (1<<ATT_PIN);//set HIGH  
+  delay(5000);
+  SPI_PORT |= (1<<ATT_PIN);//set HIGH  
+  
+  //SPI setup.
+//  PRR &= ~(1<<PRSPI);//Set to 0 to ensure power to SPI module.
+  //SPSR|=(1<<SPI2X);//Fosc/32. @16MHz==500KHz.
+  SPCR|=(1<<SPR1);//Fosc/64. @16MHz==250KHz.
+  SPCR|=(1<<CPHA);//Setup @ leading edge, sample @ falling edge.
+  SPCR|=(1<<CPOL);//Leading edge is falling edge, trailing edge is rising edge.
+  SPCR &= ~(1<<MSTR);//MSTR bit is zero, SPI is slave.
+  SPCR|=(1<<DORD);//Byte is transmitted LSB first, MSB last.
+  SPCR|=(1<<SPE);//Enable SPI.
+  SPCR|=(1<<SPIE);//Enable Serial Transfer Complete (STC) interrupt.
+  SPDR=0xFF;
+  
+  sei();//Enable global interrupts.
+  /* /PSX setup */
 #endif
   
   //boot animation
@@ -116,6 +275,10 @@ void loop() {
       buttonsState &= ~((uint32_t)1 << i);
     }
   }
+#if defined(ARDUINO_ARCH_AVR) 
+  /* PSX convert */
+  convertPopn(buttonsState);
+#endif
 
   /* USB DATA */
   if ( ( (micros() - lastReport) >= REPORT_DELAY) )
