@@ -2,8 +2,8 @@
 #include <Bounce2.h>
 #if defined(ARDUINO_ARCH_SAM)
 #include <Keypad.h>
-#include <Keyboard.h>
 #else
+#include <Keyboard.h>
 #include <EEPROM.h>
 /* PSX DEFINE */
 #include <avr/io.h>
@@ -205,7 +205,6 @@ void setup() {
   
 #if defined(ARDUINO_ARCH_SAM)
   kpd.setDebounceTime(30);
-  Keyboard.begin();
   
 /* activate numlock if you are not using the toprow keys */
 /*  delay(2000);
@@ -214,6 +213,8 @@ void setup() {
   Keyboard.release(136+83);
   */
 #else
+
+  Keyboard.begin();
   uint8_t lightMode = 2;
   EEPROM.get(0, lightMode);
   if (lightMode < 0 || lightMode > 3)
@@ -259,6 +260,7 @@ void setup() {
   animate(anim2, 2, 500);
 }
 
+char kpdhotkeys[11] = {'1','2','3','4','5','6','7','8','9','x','0'};
 /* LOOP */
 unsigned long lastReport = 0;
 uint32_t prevButtonsState = 0;
@@ -285,7 +287,6 @@ void loop() {
   {
     POPNHID.sendState(buttonsState);
     lastReport = micros();
-    prevButtonsState = buttonsState; 
     
     //check for HID-requested lightmode change
     POPNHID.updateLightMode();
@@ -351,7 +352,26 @@ void loop() {
     }
   }
 #endif
-  
+
+  /* KEYPAD HOTKEY */
+if ( buttonsState & 512 ) {
+  if ( prevButtonsState != buttonsState )
+  {
+    for (int i=0; i<11; i++)
+    {
+      if (i==9) continue;
+      if ( ((buttonsState>>i) & 1) && !((prevButtonsState>>i) & 1) )
+      {
+        Keyboard.press(kpdhotkeys[i]);
+      }
+      else if ( !((buttonsState>>i) & 1) && ((prevButtonsState>>i) & 1) )
+      {
+        Keyboard.release(kpdhotkeys[i]);
+      }
+    }
+  }
+}
+   
   /* MANUAL LIGHTMODE UPDATE */
   if ( buttonsState & 1024 ) {
     if ( (buttonsState & 2) && (modeChanged == false)) {
@@ -367,6 +387,9 @@ void loop() {
       modeChanged = false;
     }
   }
+
+  
+    prevButtonsState = buttonsState; 
 }
 
 /* Light up button lights according to bitfield */
