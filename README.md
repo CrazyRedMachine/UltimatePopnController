@@ -90,18 +90,11 @@ I included pre-compiled binaries and sources in the "ModeSwitch" folder. Refer t
 
 # Pinout (DUE)
 
-The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet lamps use 12V. Therefore I'm using mosfet transistors to do level shifting (the parts I used were three ULN2003APG chips). You can also buy pre-made level shifters such as this one https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/ (you'd need two of them since there are 18 lamps to control for a Pop'n cabinet).
+The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet outputs (lamps, coin blocker, coin counter) use 12V.
+
+Therefore I'm using transistors to do level shifting (the parts I used were three ULN2003APG or TBD62003APG chips). You can also buy pre-made level shifters such as this one https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/ (you'd need two of them since there are 20 outputs to control for a Pop'n cabinet).
 
 Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
-
-    LightPins 36 to 52 = Button lights 1 to 9
-    LightPins 37 to 53 = Top Neon 1 to 5, Left 1 (blue) 2 (red), Right 1 (blue) 2 (red)
-      connect pin to mosfet gate then mosfet drain to - terminal of LED
-      connect ground to mosfet ground (daisychain)
-      connect +12V to + terminal of LED (daisychain)
-    ButtonPins 5 to 13 = Button input 1 to 9
-    ButtonPins 4 3 2 = Test, Service, Coin
-      connect button pin to ground to trigger button press
 	  
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout.png?raw=true)
 
