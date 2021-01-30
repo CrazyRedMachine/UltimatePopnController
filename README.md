@@ -1,6 +1,6 @@
 # Ultimate Pop'n Controller
 
-USB HID controller with 12 buttons, 18 lights, 12-key matrix numpad, high polling rate and nice programmable features.
+USB HID controller with 17 inputs (9 buttons, coin, test, reset, service), 20 outputs (18 lights, coin blocker, coin counter), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, and nice programmable features.
 
 The goal was to replace the official IO Board from my pop'n cabinet with a DIY controller instead, for stability reasons (Konami IO boards are prone to failure, most Pop'n Music cabinets in the wild have broken lamps...) but also for QoL improvements (this allows me to use my panel system-wide and not only in-game, which means I can control a multiboot menu, play with emulators etc..).
 
@@ -30,7 +30,8 @@ Switch debouncing is done with Bounce2 library by Thomas O Fredericks.
 
 # Supported devices and requirements
 
-This code was designed for Arduino Due. It will compile for Leonardo as well but some features are stripped due to lack of gpio (only 11 buttons and 9 lights, no keypad). The HID descriptor is updated accordingly depending on the selected target board.
+This code was designed for Arduino Due. It will compile for Leonardo as well but some features are stripped due to lack of gpio (only 11 buttons and 9 lights, no keypad, lower polling rate). 
+Code is updated automatically depending on the selected target board, no changes are needed.
 
 The controller code requires the Bounce2 library by Thomas O Fredericks. It can be installed from the Arduino IDE Library manager.
 
@@ -40,9 +41,9 @@ The keypad code requires the Keypad library by Mark Stanley and Alexander Brevig
 
 ## I/O
 
-This controller has 12 buttons (9 buttons + coin + service + test) and 18 lights (9 buttons + 5 top neon + 4 side pillar).
+This controller has 13 buttons (9 buttons + coin + service + reset + test), 4 dip-switches (only DIP4 is used in cabinets to select between 15 or 31kHz monitor resolution on boot), 8 lights (9 buttons + 5 top neon + 4 side pillar), 2 coin outputs (coin blocker, coin counter).
 
-It also has 7 pins for the 12-key numpad, following the original cabinet pinout. It is recognized as a separate keyboard, and it is mapped to the toprow rather than the numpad (due to lack of stability when sending the numlock command to the BemaniPC). 
+It also has 7 pins for the 12-key numpad, following the original cabinet pinout. It is recognized as a separate keyboard, and it is mapped to the keyboard toprow rather than the numpad (due to lack of stability when sending the numlock command to the BemaniPC). 
 
 The 00 key is mapped to comma (for direct compatibility with spicetools) and the originally unused bottom right key is mapped to the default card scan key.
 
@@ -52,7 +53,7 @@ It also has a cool light animation on boot which you can easily adapt to your li
 
 The I/O is HID so it can be mapped with the usual IO emulation tools, but it can also be used without emulation, just like an official IOBoard, provided you replace the original `ezusb.dll` file with the one from this repo.
 
-This way the firmware is fully compatible with anything that works on an official cabinet (PopnForwarder (a bit silly but why not :D), DJMame...)
+This way the firmware is fully compatible with anything that works on an official cabinet (PopnForwarder (a bit silly but why not :D), DJMame, ezPSXe pad plugin...)
 
 ## Light modes
 
@@ -90,13 +91,21 @@ I included pre-compiled binaries and sources in the "ModeSwitch" folder. Refer t
 
 # Pinout (DUE)
 
-The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet outputs (lamps, coin blocker, coin counter) use 12V.
+The Arduino DUE has 3.3v logic whereas the Pop'n Music cabinet outputs use 12V.
 
-Therefore I'm using transistors to do level shifting (the parts I used were three ULN2003APG or TBD62003APG chips). You can also buy pre-made level shifters such as this one https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/ (you'd need two of them since there are 20 outputs to control for a Pop'n cabinet).
+Therefore I'm using transistors to do level shifting (the parts I used were three ULN2003APG or TBD62003APG chips). 
+
+You can also buy pre-made level shifters such as this one https://www.tindie.com/products/ddebeer/12-channel-level-shifter-and-buffer/ (you'd need two of them since there are 20 outputs to control for a Pop'n cabinet).
 
 Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 	  
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout.png?raw=true)
+
+## Pop'n IOShield
+
+I've also built a custom arduino shield which allows to simply connect a Pop'n Music cabinet according to the above pinout, with integrated level-shifting so you don't have to worry about anything. You can contact me for more information.
+
+![shield](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/shield.png?raw=true)
 
 # Pinout (Leonardo)
 
