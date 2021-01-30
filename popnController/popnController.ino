@@ -14,8 +14,8 @@ POPNHID_ POPNHID;
 
 /* Buttons + Lights declarations */
 #if defined(ARDUINO_ARCH_SAM)
-byte LightPins[] = {36, 38, 40, 42, 44, 46, 48, 50, 52, 37, 39, 41, 43, 45, 47, 49, 51, 53};
-byte ButtonPins[] = {5, 6, 7, 8, 9, 10, 11, 12, 13, 4, 3, 2};
+byte LightPins[] = {A7, CANTX, A8, A9, CANRX, A10, DAC1, A11, DAC0, 14, 15, 16, 17, 18, A6, A5, A4, A3}; //TODO add blocker and counter support
+byte ButtonPins[] = {5, 4, 3, 2, 1, 6, 7, 8, 9, 11, 13, 10}; //TODO add reset support (pin 12) and dip (22 24 26 28)
 #else
 uint8_t LightPins[] = {11,12,13,23,22,21,20,19,18};
 uint8_t ButtonPins[] = {0,1,2,3,4,5,6,7,8,9,10};
@@ -49,13 +49,13 @@ char numpad[ROWS][COLS] = {
 };
 
 /* This follows the Pop'n Music cabinet numpad pins order */
-byte rowPins[ROWS] = {A3, A2, A1, A0}; //connect to the row pinouts of the keypad
-byte colPins[COLS] = {A4, A5, A6}; //connect to the column pinouts of the keypad
+//byte rowPins[ROWS] = {46, 44, 42, 40}; //connect to the row pinouts of the keypad
+//byte colPins[COLS] = {48, 50, 52}; //connect to the column pinouts of the keypad
 
 /* For mini keypad
-byte rowPins[ROWS] = {A5, A0, A1, A3}; //connect to the row pinouts of the keypad
-byte colPins[COLS] = {A4, A6, A2}; //connect to the column pinouts of the keypad
 */
+byte rowPins[ROWS] = {50, 40, 42, 46}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {48, 52, 44}; //connect to the column pinouts of the keypad
 
 Keypad kpd = Keypad( makeKeymap(numpad), rowPins, colPins, ROWS, COLS );
 #endif
