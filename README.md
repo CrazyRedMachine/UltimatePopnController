@@ -14,6 +14,8 @@ I'm also taking advantage of the Leonardo EEPROM. On manually switching, the res
 
 # Demo
 
+https://www.instagram.com/p/CKE9HCQFCYM/
+
 https://www.instagram.com/p/CBWgSMklvvT/
 
 # Acknowledgments
@@ -103,12 +105,16 @@ Refer to ```pinout.png``` to see how it is all wired to a Pop'n Music cabinet.
 
 ## Pop'n IOShield
 
-I've also built a custom arduino shield which allows to simply connect a Pop'n Music cabinet according to the above pinout, with integrated level-shifting so you don't have to worry about anything. You can contact me for more information.
+I've also built a custom arduino shield with integrated level-shifting circuitry. This allows you to simply connect a Pop'n Music cabinet through 2 connectors present in your cab (unplug CN7 and CN8 from the power distribution board and plug them on this shield instead, then splice 12V from CN63 connector and feed it to the shield 12V in connector). You can contact me for more information.
 
 ![shield](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/shield.png?raw=true)
+
+Demo : https://www.instagram.com/p/CKE9HCQFCYM/
 
 # Pinout (Leonardo)
 
 Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
 
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
+
+Arduino Leonardo version is also compatible with Playstation and Playstation 2 (it can be made to be plugged directly to the controller port, please refer to the PSX branch for more information).
