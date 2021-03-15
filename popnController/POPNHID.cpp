@@ -347,6 +347,9 @@ uint16_t popnhid_convert_order(uint16_t lightDesc) {
 }
 /* Light up button lights according to bitfield */
 void popnhid_but_lights(uint16_t lightDesc) {
+  static uint16_t prev = 0;
+  if (lightDesc == prev) return;
+  prev = lightDesc;
   //conversion de lightDesc
   lightDesc = popnhid_convert_order(lightDesc);
 
@@ -363,6 +366,9 @@ void popnhid_but_lights(uint16_t lightDesc) {
 
 /* Light up pillars and top neons according to bitfield */
 void popnhid_neon_lights(uint16_t lightDesc) {
+  static uint16_t prev = 0;
+  if (lightDesc == prev) return;
+  prev = lightDesc;
   //Top-Lamp
   for (int i = 0; i < 5; i++) {
     if ((lightDesc >> i) & 1) {
@@ -399,7 +405,7 @@ void POPNHID_::updateLeds(uint32_t buttonsState, bool invert) {
 
   //ici on allume les boutons
   popnhid_but_lights((uint16_t) leds);
-  popnhid_neon_lights((uint16_t) (leds >> 16));
+  popnhid_neon_lights(leds >> 9);
 }
 
 int POPNHID_::sendState(uint32_t buttonsState) {
