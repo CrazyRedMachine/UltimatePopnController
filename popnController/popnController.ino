@@ -1,96 +1,61 @@
 #define BOUNCE_WITH_PROMPT_DETECTION
 #include <Bounce2.h>
-#if defined(ARDUINO_ARCH_SAM)
-#include <Keypad.h>
-#include <Keyboard.h>
-#else
 #include <EEPROM.h>
-#endif
+#include <FastLED.h>
 #include "POPNHID.h"
-/* 1 frame (as declared in POPNHID.cpp) on highspeed USB spec is 125µs */
-#define REPORT_DELAY 125
+/* 1 frame (as declared in POPNHID.cpp) on fullspeed USB spec is 1ms */
+#define REPORT_DELAY 1000
 #define MILLIDEBOUNCE 15
 POPNHID_ POPNHID;
 
 /* Buttons + Lights declarations */
-#if defined(ARDUINO_ARCH_SAM)
-byte LightPins[] = {A7, CANTX, A8, A9, CANRX, A10, DAC1, A11, DAC0, 14, 15, 16, 17, 18, A6, A5, A4, A3}; //TODO add blocker and counter support
-byte ButtonPins[] = {5, 4, 3, 2, 1, 6, 7, 8, 9, 11, 13, 10}; //TODO add reset support (pin 12) and dip (22 24 26 28)
-#else
-uint8_t LightPins[] = {11,12,13,23,22,21,20,19,18};
-uint8_t ButtonPins[] = {0,1,2,3,4,5,6,7,8,9,10};
-#endif
+#define BUT_LED_PIN     A0
+#define BUT_NUM_LEDS    9
+#define LEFT_LED_PIN     8
+#define LEFT_NUM_LEDS    9
+#define RIGHT_LED_PIN     9
+#define RIGHT_NUM_LEDS    9
+CRGB but_leds[BUT_NUM_LEDS];
+CRGB left_leds[LEFT_NUM_LEDS];
+CRGB right_leds[RIGHT_NUM_LEDS];
+CRGB but_led_colors[BUT_NUM_LEDS] = {CRGB::White, CRGB::Green, CRGB::Red, CRGB::Green, CRGB::White, CRGB::Yellow, CRGB::Blue, CRGB::Blue, CRGB::Yellow};
+#define PILLAR_BRIGHTNESS 64
+#define BUTTON_BRIGHTNESS 220
+uint8_t NeonPins[] = {A1, A2, A3, A4, A5};
+uint8_t ButtonPins[] = {0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13};
+uint8_t sysPin = 12;
+//this array contains the light offset given buttons 0 to 8 as ref
+uint8_t lightOrder[] = {0, 8, 1, 7, 2, 6, 3, 5, 4};
 
 const byte ButtonCount = sizeof(ButtonPins) / sizeof(ButtonPins[0]);
-const byte LightCount = sizeof(LightPins) / sizeof(LightPins[0]);
+const byte NeonCount = sizeof(NeonPins) / sizeof(NeonPins[0]);
+
 Bounce buttons[ButtonCount];
-
-#if defined(ARDUINO_ARCH_SAM)
-/* Keypad declarations */
-const byte ROWS = 4;
-const byte COLS = 3;
-
-/*
-// To use the keypad as the numpad keys (will require to send numlock for it to work)
-char numpad[ROWS][COLS] = {
-  {'\347', '\350', '\351'},
-  {'\344', '\345', '\346'},
-  {'\341', '\342', '\343'},
-  {'\352', ',', '\337'}
-};
-*/
-
-/* This is to use the toprow keys instead */
-char numpad[ROWS][COLS] = {
-  {'7', '8', '9'},
-  {'4', '5', '6'},
-  {'1', '2', '3'},
-  {'0', ',', '\337'}
-};
-
-/* This follows the Pop'n Music cabinet numpad pins order */
-//byte rowPins[ROWS] = {46, 44, 42, 40}; //connect to the row pinouts of the keypad
-//byte colPins[COLS] = {48, 50, 52}; //connect to the column pinouts of the keypad
-
-/* For mini keypad
-*/
-byte rowPins[ROWS] = {50, 40, 42, 46}; //connect to the row pinouts of the keypad
-byte colPins[COLS] = {48, 52, 44}; //connect to the column pinouts of the keypad
-
-Keypad kpd = Keypad( makeKeymap(numpad), rowPins, colPins, ROWS, COLS );
-#endif
 
 /* SETUP */
 void setup() {
   // setup I/O for pins
   for (int i = 0; i < ButtonCount; i++) {
-        buttons[i] = Bounce();
-        buttons[i].attach(ButtonPins[i], INPUT_PULLUP);
-        buttons[i].interval(MILLIDEBOUNCE);
+    buttons[i] = Bounce();
+    buttons[i].attach(ButtonPins[i], INPUT_PULLUP);
+    buttons[i].interval(MILLIDEBOUNCE);
   }
 
-  for (int i = 0; i < LightCount; i++) {
-    pinMode(LightPins[i], OUTPUT);
+  for (int i = 0; i < NeonCount; i++) {
+    pinMode(NeonPins[i], OUTPUT);
   }
-  
-#if defined(ARDUINO_ARCH_SAM)
-  kpd.setDebounceTime(30);
-  Keyboard.begin();
-  
-/* activate numlock if you are not using the toprow keys */
-/*  delay(2000);
-  Keyboard.press(136 + 83);
-  delay(500);
-  Keyboard.release(136+83);
-  */
-#else
+
+  FastLED.addLeds<WS2812, BUT_LED_PIN, GRB>(but_leds, BUT_NUM_LEDS);
+  FastLED.addLeds<WS2812, LEFT_LED_PIN, GRB>(left_leds, LEFT_NUM_LEDS);
+  FastLED.addLeds<WS2812, RIGHT_LED_PIN, GRB>(right_leds, RIGHT_NUM_LEDS);
+  FastLED.setBrightness( BUTTON_BRIGHTNESS );
+
   uint8_t lightMode;
   EEPROM.get(0, lightMode);
   if (lightMode < 0 || lightMode > 3)
     lightMode = 2;
   POPNHID.setLightMode(lightMode);
-#endif
-  
+
   //boot animation
   uint16_t anim[] = {1, 4, 16, 64, 256, 128, 32, 8, 2};
   animate(anim, 9, 100);
@@ -108,9 +73,9 @@ void loop() {
   /* BUTTONS */
   uint32_t buttonsState = 0;
   for (int i = 0; i < ButtonCount; i++) {
-       buttons[i].update();
-       int value = buttons[i].read();
-    if (value != HIGH){
+    buttons[i].update();
+    int value = buttons[i].read();
+    if (value != HIGH) {
       buttonsState |= (uint32_t)1 << i;
     } else {
       buttonsState &= ~((uint32_t)1 << i);
@@ -122,29 +87,27 @@ void loop() {
   {
     POPNHID.sendState(buttonsState);
     lastReport = micros();
-    prevButtonsState = buttonsState; 
-    
+    prevButtonsState = buttonsState;
+
     //check for HID-requested lightmode change
     POPNHID.updateLightMode();
-  }  
-  
+  }
+
   /* LAMPS */
   uint8_t mode = POPNHID.getLightMode();
   /* mixed mode will behave sometimes like HID, sometimes like reactive */
-  if (mode == 2){
-      if ((millis()-POPNHID.getLastHidUpdate()) > 3000)
-        mode = 0;
-      else
-        mode = 1;
+  if (mode == 2) {
+    if ((millis() - POPNHID.getLastHidUpdate()) > 3000)
+      mode = 0;
+    else
+      mode = 1;
   }
   switch (mode)
   {
     /* Reactive mode, locally determined lamp data */
     case 0:
       but_lights(buttonsState & 0x1ff);
-#if defined(ARDUINO_ARCH_SAM)     
       reactive_neon(buttonsState & 0x1ff);
-#endif
       break;
     /* HID mode, only based on received HID data */
     case 1:
@@ -161,46 +124,17 @@ void loop() {
     default:
       break;
   }
-  
-#if defined(ARDUINO_ARCH_SAM)
-  /* KEYPAD */
-  if (kpd.getKeys())
-  {
-    for (int i = 0; i < LIST_MAX; i++) // Scan the whole key list.
-    {
-      if ( kpd.key[i].stateChanged )   // Only find keys that have changed state.
-      {
-        switch (kpd.key[i].kstate) {  // Report active key state : IDLE, PRESSED, HOLD, or RELEASED
-          case PRESSED:
-            Keyboard.press(kpd.key[i].kchar);
-            break;
-          case HOLD:
 
-            break;
-          case RELEASED:
-            Keyboard.release(kpd.key[i].kchar);
-            break;
-          case IDLE:
-            break;
-        }
-
-      }
-    }
-  }
-#endif
-  
   /* MANUAL LIGHTMODE UPDATE */
   if ( buttonsState & 1024 ) {
     if ( (buttonsState & 2) && (modeChanged == false)) {
       modeChanged = true;
-      uint8_t mode = POPNHID.getLightMode()+1;
+      uint8_t mode = POPNHID.getLightMode() + 1;
       if (mode > 4) mode = 0;
       POPNHID.setLightMode(mode);
-#if defined(ARDUINO_ARCH_AVR)
       EEPROM.put(0, mode);
-#endif
     }
-    else if (!(buttonsState&2)) {
+    else if (!(buttonsState & 2)) {
       modeChanged = false;
     }
   }
@@ -208,40 +142,59 @@ void loop() {
 
 /* Light up button lights according to bitfield */
 void but_lights(uint16_t lightDesc) {
-  for (int i = 0; i < 9; i++) {
+  //conversion de lightDesc
+  lightDesc = convert_order(lightDesc);
+
+  //allumage
+  for (int i = 0; i < BUT_NUM_LEDS; i++) {
     if ((lightDesc >> i) & 1) {
-      digitalWrite(LightPins[i], HIGH);
-    }    else  {
-      digitalWrite(LightPins[i], LOW);
+      but_leds[i] = but_led_colors[i];
+    } else {
+      but_leds[i] = 0;
     }
   }
+  FastLED.show();
 }
 
 /* Light up pillars and top neons according to bitfield */
 void neon_lights(uint16_t lightDesc) {
-  for (int i = 0; i < 9; i++) {
+  //Top-Lamp
+  for (int i = 0; i < NeonCount; i++) {
     if ((lightDesc >> i) & 1) {
-      digitalWrite(LightPins[i + 9], HIGH);
+      digitalWrite(NeonPins[i], HIGH);
     }    else  {
-      digitalWrite(LightPins[i + 9], LOW);
+      digitalWrite(NeonPins[i], LOW);
     }
   }
+
+  //LEFT
+  CRGB left_color = 0;
+  if ((lightDesc >> 5) & 1) left_color.b += PILLAR_BRIGHTNESS;
+  if ((lightDesc >> 6) & 1) left_color.r += PILLAR_BRIGHTNESS;
+  for (int i = 1; i < 8; i++) {
+    left_leds[i] = left_color;
+  }
+  //RIGHT
+  CRGB right_color = 0;
+  if ((lightDesc >> 7) & 1) right_color.b += PILLAR_BRIGHTNESS;
+  if ((lightDesc >> 8) & 1) right_color.r += PILLAR_BRIGHTNESS;
+  for (int i = 1; i < 8; i++) {
+    right_leds[i] = right_color;
+  }
+
+
+  FastLED.show();
 }
 
 /* Display animation on the cab according to a bitfield array */
 void animate(uint16_t* tab, uint8_t n, int mswait) {
   for (int i = 0; i < n; i++) {
     but_lights(tab[i]);
-#if defined(ARDUINO_ARCH_SAM)
     neon_lights(tab[i]);
-#endif
     delay(mswait);
   }
 }
 
-/* ARDUINO DUE ONLY FUNCTIONS */
-
-#if defined(ARDUINO_ARCH_SAM)
 /* Manage pillars and top neons in reactive mode */
 uint16_t neon_anim[] = {16, 24, 28, 30, 31, 30, 28, 24};
 int neon_anim_index = 0;
@@ -257,63 +210,63 @@ unsigned long neonRate = 200;
 void reactive_neon(uint16_t buttonsState) {
   uint16_t neons = 0;
   unsigned long currTime = millis();
-  
+
   /*
-   * SIDE PILLARS
-   * When pressing any button the side pillars will blink for half a second
-   * The color is randomly chosen with blue being predominant, red rare and purple super rare
-   */
+     SIDE PILLARS
+     When pressing any button the side pillars will blink for half a second
+     The color is randomly chosen with blue being predominant, red rare and purple super rare
+  */
   if ( buttonsState != prevState )
   {
-    if ( buttonsState != 0 ){
-    long randNumber = random(21);
-    if (randNumber == 0)
-    {
-      pillar_state_index = 3;
+    if ( buttonsState != 0 ) {
+      long randNumber = random(21);
+      if (randNumber == 0)
+      {
+        pillar_state_index = 3;
+      }
+      else if (randNumber < 3)
+      {
+        pillar_state_index = 1;
+      } else {
+        pillar_state_index = 2;
+      }
+      pillar_lit = true;
+      if (buttonsState != 0) lastButtonAction = currTime;
     }
-    else if (randNumber < 3)
-    {
-      pillar_state_index = 1;
-    } else {
-      pillar_state_index = 2;
-    }
-    pillar_lit = true;
-    if (buttonsState != 0) lastButtonAction = currTime;
-   }    
-  prevState = buttonsState;
- } else { /* no state change, continue to blink for 50ms */
-   if (currTime - lastBlink > 50) {
+    prevState = buttonsState;
+  } else { /* no state change, continue to blink for 50ms */
+    if (currTime - lastBlink > 50) {
       pillar_lit = !pillar_lit;
       lastBlink = currTime;
     }
-   if (currTime - lastButtonAction > 500) {
+    if (currTime - lastButtonAction > 500) {
       pillar_state_index = 0;
     }
- }
+  }
 
-if (pillar_lit)
-  neons |= pillar_state[pillar_state_index];
+  if (pillar_lit)
+    neons |= pillar_state[pillar_state_index];
 
   /*
-   * Adjusting top neon animation speed (should go faster when you hit buttons quickly)
-   */
-    actionRate = currTime - lastButtonAction;
- 
-    if (15*actionRate < neonRate)
+     Adjusting top neon animation speed (should go faster when you hit buttons quickly)
+  */
+  actionRate = currTime - lastButtonAction;
+
+  if (15 * actionRate < neonRate)
     neonRate *= 0.99995;
-    else if (actionRate > 10*neonRate){
-    neonRate = neonRate*1.01;
+  else if (actionRate > 10 * neonRate) {
+    neonRate = neonRate * 1.01;
     if (neonRate < 100) neonRate++;
-    }
-    if (neonRate > 400)
+  }
+  if (neonRate > 400)
     neonRate = 400;
 
-    if (neonRate < 40)
+  if (neonRate < 40)
     neonRate = 40;
-  
+
   /*
-   * Cycling through the top neon animation
-   */
+     Cycling through the top neon animation
+  */
   if ((currTime - lastNeonUpdate) > neonRate)
   {
     neon_anim_index++;
@@ -324,8 +277,18 @@ if (pillar_lit)
   neons |= neon_anim[neon_anim_index];
 
   /*
-   * Light the leds
-   */
+     Light the leds
+  */
   neon_lights(neons);
 }
-#endif
+
+/* BARTOP ONLY FUNCTIONS */
+uint16_t convert_order(uint16_t lightDesc) {
+  uint16_t res = 0;
+  for (int i = 0; i < BUT_NUM_LEDS; i++) {
+    if ((lightDesc >> i) & 1) {
+      res |= 1 << (lightOrder[i]);
+    }
+  }
+  return res;
+}
