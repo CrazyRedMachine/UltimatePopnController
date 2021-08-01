@@ -1,3 +1,5 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?hosted_button_id=WT735CX4UMZ9U)
+
 # Ultimate Pop'n Controller
 
 USB HID controller with 17 inputs (9 buttons, coin, test, reset, service), 20 outputs (18 lights, coin blocker, coin counter), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, and nice programmable features.
@@ -118,3 +120,13 @@ Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
 
 Arduino Leonardo version is also compatible with Playstation and Playstation 2 (it can be made to be plugged directly to the controller port, please refer to the PSX branch for more information).
+
+## Donation
+
+If this project helps you and you want to give back, you can help me with my future projects.
+
+While not necessary, donations are much appreciated and will only go towards funding future github projects (arcade hardware ain't cheap :( ).
+
+Of course you'll also receive my gratitude and I'll remember you if you post a feature request ;)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate?hosted_button_id=WT735CX4UMZ9U)
