@@ -14,6 +14,4 @@ The dll makes the lights turn on for 1 sec on load so you'll know if the game ma
 
 ## How to retrieve devicepath
 
-The dll will attempt to open the default paths from the Due and Leonardo versions of this firmware, in case it doesn't work you can put a `devicepath.dat` file in the same folder as the dll.
-
-See instructions from ModeSwitch to know more about the path format and how to find the one corresponding to your device.
+The dll will attempt to open the device automatically based on the custom VID/PID. In case it doesn't work you can put a `devicepath.dat` file in the same folder as the dll.

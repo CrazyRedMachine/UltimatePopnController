@@ -1,3 +1,5 @@
+# NOTE: ModeSwitch is broken for now, fixing is low priority as long as nobody needs it, so open an issue if needed.
+
 # ModeSwitch for the Pop'n Ultimate Controller
 
 This is a binary meant to set the LightMode used by the Pop'n Controller. It is mostly useful for multi-boot frontends as it allows to switch to the correct mode before launching a game.
