@@ -1,27 +1,32 @@
 #include "HID.h"
 
+#define USB_EP_BINTERVAL            1
+
 #if defined(ARDUINO_ARCH_AVR)
 
-#define EPTYPE_DESCRIPTOR_SIZE    uint8_t
+#define EPTYPE_DESCRIPTOR_SIZE      uint8_t
 
 #elif defined(ARDUINO_ARCH_SAM)
 
-#define EPTYPE_DESCRIPTOR_SIZE    uint32_t
-#define USB_EP_SIZE 64
-#define TRANSFER_PGM 0x80
-#define USB_SendControl        USBD_SendControl
-#define USB_RecvControl        USBD_RecvControl
-#define USB_Recv          USBD_Recv
-#define USB_Send          USBD_Send
-#define USB_Flush         USBD_Flush
-#define HID_REPORT_TYPE_OUTPUT 2
-#define HID_REPORT_TYPE_INPUT 1
+#define EPTYPE_DESCRIPTOR_SIZE      uint32_t
+#define USB_EP_SIZE                 64
+#define TRANSFER_PGM                0x80
+#define USB_SendControl             USBD_SendControl
+#define USB_RecvControl             USBD_RecvControl
+#define USB_Recv                    USBD_Recv
+#define USB_Send                    USBD_Send
+#define USB_Flush                   USBD_Flush
+#define HID_REPORT_TYPE_INPUT       1
+#define HID_REPORT_TYPE_OUTPUT      2
+#define HID_REPORT_TYPE_FEATURE     3
 
 #else
 
 #error "Unsupported architecture"
 
 #endif
+
+#define STRING_ID_LED_Base 4
 
 class POPNHID_ : public PluggableUSBModule {
 
@@ -51,7 +56,7 @@ class POPNHID_ : public PluggableUSBModule {
      * getter and setter for lightMode protected field.
      */
     uint8_t getLightMode();
-    void setLightMode(uint8_t mode);
+    uint8_t setLightMode(uint8_t mode);
     
     /**
      * getter for lastHidUpdate protected field.
@@ -65,6 +70,7 @@ class POPNHID_ : public PluggableUSBModule {
     unsigned long lastHidUpdate = 0;
     /* byte array to receive HID reports from the PC */
     byte led_data[5];
+    byte mode_data;
     
     /* Implementation of the PUSBListNode */
     EPTYPE_DESCRIPTOR_SIZE epType[1];
@@ -73,7 +79,6 @@ class POPNHID_ : public PluggableUSBModule {
     int getInterface(uint8_t* interfaceCount);
     int getDescriptor(USBSetup& setup);
     bool setup(USBSetup& setup);
-    uint8_t getShortName(char *name);
 };
 
 extern POPNHID_ POPNHID;

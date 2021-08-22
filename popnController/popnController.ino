@@ -14,8 +14,9 @@ POPNHID_ POPNHID;
 
 /* Buttons + Lights declarations */
 #if defined(ARDUINO_ARCH_SAM)
-byte LightPins[] = {A7, CANTX, A8, A9, CANRX, A10, DAC1, A11, DAC0, 14, 15, 16, 17, 18, A6, A5, A4, A3}; //TODO add blocker and counter support
-byte ButtonPins[] = {5, 4, 3, 2, 1, 6, 7, 8, 9, 11, 13, 10}; //TODO add reset support (pin 12) and dip (22 24 26 28)
+byte LightPins[] = {A7, CANTX, A8, A9, CANRX, A10, DAC1, A11, DAC0, 14, 15, 16, 17, 18, A6, A5, A4, A3, 19, 20};
+byte ButtonPins[] = {5, 4, 3, 2, 1, 6, 7, 8, 9, 11, 13, 10, 12};
+byte DipPins[] = {22, 24, 26, 28};
 #else
 uint8_t LightPins[] = {11,12,13,23,22,21,20,19,18};
 uint8_t ButtonPins[] = {0,1,2,3,4,5,6,7,8,9,10};
@@ -62,6 +63,7 @@ Keypad kpd = Keypad( makeKeymap(numpad), rowPins, colPins, ROWS, COLS );
 
 /* SETUP */
 void setup() {
+  
   // setup I/O for pins
   for (int i = 0; i < ButtonCount; i++) {
         buttons[i] = Bounce();
@@ -74,6 +76,9 @@ void setup() {
   }
   
 #if defined(ARDUINO_ARCH_SAM)
+  for (int i = 0; i < 4; i++) {
+    pinMode(DipPins[i], INPUT_PULLUP);
+  }
   kpd.setDebounceTime(30);
   Keyboard.begin();
   
@@ -83,14 +88,14 @@ void setup() {
   delay(500);
   Keyboard.release(136+83);
   */
+  POPNHID.setLightMode(2);
 #else
   uint8_t lightMode;
   EEPROM.get(0, lightMode);
-  if (lightMode < 0 || lightMode > 3)
+  if (lightMode > 4)
     lightMode = 2;
   POPNHID.setLightMode(lightMode);
 #endif
-  
   //boot animation
   uint16_t anim[] = {1, 4, 16, 64, 256, 128, 32, 8, 2};
   animate(anim, 9, 100);
