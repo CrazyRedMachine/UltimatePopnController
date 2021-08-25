@@ -1,8 +1,8 @@
 #define BOUNCE_WITH_PROMPT_DETECTION
 #include <Bounce2.h>
+#include <Keyboard.h>
 #if defined(ARDUINO_ARCH_SAM)
 #include <Keypad.h>
-#include <Keyboard.h>
 #else
 #include <EEPROM.h>
 #endif
@@ -116,8 +116,10 @@ void loop() {
        buttons[i].update();
        int value = buttons[i].read();
     if (value != HIGH){
+      Keyboard.press('0'+i);
       buttonsState |= (uint32_t)1 << i;
     } else {
+      Keyboard.release('0'+i);
       buttonsState &= ~((uint32_t)1 << i);
     }
   }
