@@ -2,7 +2,7 @@
 
 # Ultimate Pop'n Controller
 
-USB HID controller with 17 inputs (9 buttons, coin, test, reset, service), 20 outputs (18 lights, coin blocker, coin counter), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, and nice programmable features.
+USB HID controller with 17 inputs (9 buttons, coin, test, reset, service), 20 named outputs (18 lights, coin blocker, coin counter), 4 features (dip switches), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, Pop'n beMouse and Lively native compatibility, and nice programmable features.
 
 The goal was to replace the official IO Board from my pop'n cabinet with a DIY controller instead, for stability reasons (Konami IO boards are prone to failure, most Pop'n Music cabinets in the wild have broken lamps...) but also for QoL improvements (this allows me to use my panel system-wide and not only in-game, which means I can control a multiboot menu, play with emulators etc..).
 
@@ -10,9 +10,13 @@ In combination with the PN5180-cardio project, the whole IO from a Pop'n Music c
 
 # Leonardo version
 
-Because I loved the ModeSwitch feature, I adapted the code so it could compile for Leonardo as well. Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, duh).
+This code was originally written for Arduino Due but is also compatible with Leonardo without any change required.
+
+Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, but you might want to have a look at the ambilight branch for ws2812b side/top lamps).
 
 I'm also taking advantage of the Leonardo EEPROM. On manually switching, the resulting lightmode is stored in the EEPROM so that it persists on controller disconnect/reconnect.
+
+You only need to select "Leonardo" as your board type in Arduino IDE before flashing.
 
 # Demo
 
@@ -45,9 +49,9 @@ The keypad code requires the Keypad library by Mark Stanley and Alexander Brevig
 
 ## I/O
 
-This controller has 13 buttons (9 buttons + coin + service + reset + test), 4 dip-switches (only DIP4 is used in cabinets to select between 15 or 31kHz monitor resolution on boot), 8 lights (9 buttons + 5 top neon + 4 side pillar), 2 coin outputs (coin blocker, coin counter).
+This controller has 13 buttons (9 buttons + coin + service + reset + test), 4 dip-switches (only DIP4 is used in cabinets to select between 15 or 31kHz monitor resolution on boot), 18 lights (9 buttons + 5 top neon + 4 side pillar), 2 coin outputs (coin blocker, coin counter).
 
-It also has 7 pins for the 12-key numpad, following the original cabinet pinout. It is recognized as a separate keyboard, and it is mapped to the keyboard toprow rather than the numpad (due to lack of stability when sending the numlock command to the BemaniPC). 
+It also has 7 pins for the 12-key numpad, following the original cabinet pinout. It is recognized as a separate keyboard, and it is mapped to the keyboard toprow rather than the numpad (due to lack of stability when sending the numlock command to the BemaniPC).
 
 The 00 key is mapped to comma (for direct compatibility with spicetools) and the originally unused bottom right key is mapped to the default card scan key.
 
@@ -55,9 +59,13 @@ It also has a cool light animation on boot which you can easily adapt to your li
 
 ## ezusb driver
 
-The I/O is HID so it can be mapped with the usual IO emulation tools, but it can also be used without emulation, just like an official IOBoard, provided you replace the original `ezusb.dll` file with the one from this repo.
+The I/O is HID so it can be mapped with the usual IO emulation tools, and even has named outputs for ease of use, but it can also be used just like an official IOBoard, provided you replace the original `ezusb.dll` file with the one from this repo.
 
 This way the firmware is fully compatible with anything that works on an official cabinet (PopnForwarder (a bit silly but why not :D), DJMame, ezPSXe pad plugin...)
+
+## pop'n beMouse
+
+The controller will enumerate in a way that is directly compatible with the old Pop'n beMouse software (it also directly works with Pop'n Lively).
 
 ## Light modes
 

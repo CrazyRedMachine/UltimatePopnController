@@ -56,7 +56,7 @@ BOOLEAN get_device_path(wchar_t *lPath)
             continue;
 		
 		/* check if the device contains our wanted vid/pid */
-		if ( wcsstr( pspdidd->DevicePath, L"vid_1ccf&pid_4148&mi_02" ) == NULL )
+		if ( wcsstr( pspdidd->DevicePath, L"vid_1ccf&pid_1000&mi_02" ) == NULL )
 		{
             continue;
 		}
@@ -140,32 +140,32 @@ static int controller_init(){
  * @return 0 on success, -1 on error
  */
 static int controller_read_buttons(uint32_t *pad_bits){
-    DWORD	      uint8_tsRead = 0;
-    uint8_t          res[4];
-    unsigned char buf[6]; // gamepad report length is 3 uint8_ts in firmware, doubled because NumInputBuffer is set to 2
+    DWORD	      bytesRead = 0;
+    uint8_t       res[4];
+    unsigned char buf[6]; // gamepad report length is 3 bytes in firmware, doubled because NumInputBuffer is set to 2
 
     buf[0] = 0x04; // gamepad report ID is 4 in firmware
     *pad_bits = 0;
 
-    ReadFile(g_hid_handle, buf, 6, &uint8_tsRead, NULL);
-    // uint8_tsRead should either be 6 (if it successfully read 2 reports) or 3 (only one)
-    if ( uint8_tsRead != 6 && uint8_tsRead != 3 )
+    ReadFile(g_hid_handle, buf, 6, &bytesRead, NULL);
+    // bytesRead should either be 6 (if it successfully read 2 reports) or 3 (only one)
+    if ( bytesRead != 6 && bytesRead != 3 )
     {
 #ifdef DEBUG
-        printf("HID read error (got %u uint8_ts)\n",uint8_tsRead);
+        printf("HID read error (got %u bytes)\n",bytesRead);
 #endif
         return -1;
     }
 
-    /* HID read ok, convert latest report uint8_ts to pop'n bitfield */
+    /* HID read ok, convert latest report bytes to pop'n bitfield */
     res[3] = 0;
-    res[2] = (buf[uint8_tsRead-1]<<3 | buf[uint8_tsRead-1]) & 0x41;
-    res[1] = buf[uint8_tsRead-2];
+    res[2] = (buf[bytesRead-1]<<3 | buf[bytesRead-1]) & 0x41;
+    res[1] = buf[bytesRead-2];
     res[0] = 0;
-    buf[uint8_tsRead-1] >>= 1;
-    if ( buf[uint8_tsRead-1]&1 ) res[0] |= 0x80;
-    buf[uint8_tsRead-1] >>= 1;
-    if ( buf[uint8_tsRead-1]&1 ) res[0] |= 0x40;
+    buf[bytesRead-1] >>= 1;
+    if ( buf[bytesRead-1]&1 ) res[0] |= 0x80;
+    buf[bytesRead-1] >>= 1;
+    if ( buf[bytesRead-1]&1 ) res[0] |= 0x40;
     *pad_bits = *(uint32_t *)res;
 	
 	/* dip switches */
@@ -177,7 +177,7 @@ static int controller_read_buttons(uint32_t *pad_bits){
         if (((i+1)%4)==0) printf(" ");
     }
     printf("\n");
-	if (*pad_bits & 0x8000000) printf("31kHz mode\n");
+	if (*pad_bits & 0x8000000) printf("31kHz mode\r\n");
 #endif
     return 0;
 }
@@ -303,7 +303,7 @@ __declspec(dllexport) int __cdecl usbSetExtIo(int i) {
 __declspec(dllexport) int __cdecl usbStart(int i) {
     if (controller_init() == -1)
     {
-        printf("Could not init device.\n");
+        printf("Could not init device.\r\n");
         return  -1;
     }
 
@@ -312,7 +312,7 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
             2);
     if (!hidres)
     {
-        printf("error %d setnuminputbuff\n",GetLastError());
+        printf("Error %d setnuminputbuff\r\n",GetLastError());
         return -1;
     }
 
@@ -320,7 +320,7 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
 	uint8_t feat[2] = {0x06, 0x00};
 	if (!HidD_GetFeature(g_hid_handle, &feat, 2))
 	{
-		printf("error %d getFeature\n",GetLastError());
+		printf("Cannot read dipswitches (error %d)\r\n",GetLastError());
 	};
 	g_dip_state = feat[1];
 
@@ -368,3 +368,4 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
     return 1;
 }
+

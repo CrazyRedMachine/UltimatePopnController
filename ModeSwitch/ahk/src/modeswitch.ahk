@@ -2,9 +2,12 @@
 #Persistent
 #include AHKHID.ahk
 
-hArd := HID_Open("1ccf","4148")
+MsgBox Sorry, this script is currently broken (I now need to get it to send a proper feature report instead of an output report)
+ExitApp
+
+hArd := HID_Open("1ccf","1000")
 while (hLED = -1) {
- hArd := HID_Open("1ccf","4148")
+ hArd := HID_Open("1ccf","1000")
  Sleep, 5000
 }
 if 0 < 1  ; The left side of a non-expression if-statement is always the name of a variable.
