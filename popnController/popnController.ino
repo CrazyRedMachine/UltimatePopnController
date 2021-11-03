@@ -156,17 +156,21 @@ void convertPopn(uint32_t buttons){
 ISR(SPI_STC_vect) {  
   uint8_t inbyte=SPDR;
 
-  if (inbyte==command_buff[curr_byte]) {    
+  if (inbyte==command_buff[curr_byte]) {   
+    
+    SPI_DDR |= (1<<DATA_PIN);//output
+   
     SPDR = data_buff[curr_byte];
     curr_byte++;
     if (curr_byte<DATA_LEN) {//ACK low.
+       _delay_us(8); // Necessary delay for PS1 (not needed for PS2)
       //SPI_PORT &= ~(1<<ACK_PIN);
       PORTD &= ~(1<<5);//set HIGH
     // simulate open drain
     //  SPI_DDR |= (1<<ACK_PIN);//output
     //  SPI_PORT &= ~(1<<ACK_PIN);//set low (simulate open collector LOW)
 
-      _delay_us(5);
+      _delay_us(1);
     //SPI_PORT |= (1<<ACK_PIN);
      PORTD |= (1<<5);//set HIGH
 
@@ -231,28 +235,19 @@ void setup() {
  // DDRD |= (1<<5);//output
   PORTD |= (1<<5);//set HIGH
 
-  SPI_DDR |= (1<<DATA_PIN);//output
+  SPI_DDR &= ~(1 << DATA_PIN); //input
   SPI_PORT |= (1<<DATA_PIN);//set HIGH  
 
-  SPI_DDR |= (1<<ATT_PIN);//out
-  delay(500);
-  SPI_PORT |= (1<<ATT_PIN);//set HIGH  
-  delay(5000);
-  SPI_PORT |= (1<<ATT_PIN);//set HIGH  
-
-  //SPI setup.
-//  PRR &= ~(1<<PRSPI);//Set to 0 to ensure power to SPI module.
-  //SPSR|=(1<<SPI2X);//Fosc/32. @16MHz==500KHz.
-  SPCR|=(1<<SPR1);//Fosc/64. @16MHz==250KHz.
-  SPCR|=(1<<CPHA);//Setup @ leading edge, sample @ falling edge.
-  SPCR|=(1<<CPOL);//Leading edge is falling edge, trailing edge is rising edge.
-  SPCR &= ~(1<<MSTR);//MSTR bit is zero, SPI is slave.
-  SPCR|=(1<<DORD);//Byte is transmitted LSB first, MSB last.
-  SPCR|=(1<<SPE);//Enable SPI.
-  SPCR|=(1<<SPIE);//Enable Serial Transfer Complete (STC) interrupt.
-  SPDR=0xFF;
-
-  sei();//Enable global interrupts.
+    //SPI setup
+  SPCR |= (1 << SPR1);  // Fosc/64. @16MHz==250KHz.
+  SPCR |= (1 << CPHA);  // Setup @ leading edge, sample @ falling edge.
+  SPCR |= (1 << CPOL);  // Leading edge is falling edge, trailing edge is rising edge.
+  SPCR &= ~(1 << MSTR); // MSTR bit is zero, SPI is slave.
+  SPCR |= (1 << DORD);  // Byte is transmitted LSB first, MSB last.
+  SPCR |= (1 << SPE);   // Enable SPI.
+  SPCR |= (1 << SPIE);  // Enable Serial Transfer Complete (STC) interrupt.
+  SPDR = 0xFF;
+  sei();  // Enable global interrupts
   /* /PSX setup */
 #endif
   //boot animation
@@ -283,6 +278,12 @@ void loop() {
 #if defined(ARDUINO_ARCH_AVR) 
   /* PSX convert */
   convertPopn(buttonsState);
+
+  if ((SPI_PORT & (1 << ATT_PIN) > 0)) {
+    SPI_DDR &= ~(1 << DATA_PIN); // input
+    SPI_PORT &= ~(1 << DATA_PIN); // ensure pullup is off
+  }
+  
 #endif
   /* USB DATA */
   if ( ( (micros() - lastReport) >= REPORT_DELAY) )

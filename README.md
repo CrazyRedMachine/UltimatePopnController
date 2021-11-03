@@ -32,7 +32,7 @@ The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
 
 Switch debouncing is done with Bounce2 library by Thomas O Fredericks.
 
-PSX Controller code is based on busslave's PSX_RECEIVER.cpp
+PSX Controller code is based on busslave's PSX_RECEIVER.cpp, with PS1 compatibility fixes by [veroxzik](https://github.com/veroxzik)
 
 # Supported devices and requirements
 
