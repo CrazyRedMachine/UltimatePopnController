@@ -2,7 +2,7 @@
 
 # Ultimate Pop'n Controller
 
-USB HID controller with 17 inputs (9 buttons, coin, test, reset, service), 20 named outputs (18 lights, coin blocker, coin counter), 4 features (dip switches), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, Pop'n beMouse and Lively native compatibility, and nice programmable features.
+USB HID controller with 13 inputs (9 buttons, coin, test, reset, service), 20 named outputs (18 lights, coin blocker, coin counter), 4 features (dip switches), 12-key matrix numpad, high polling rate, custom dll for full cabinet compatibility, Pop'n beMouse and Lively native compatibility, and nice programmable features.
 
 The goal was to replace the official IO Board from my pop'n cabinet with a DIY controller instead, for stability reasons (Konami IO boards are prone to failure, most Pop'n Music cabinets in the wild have broken lamps...) but also for QoL improvements (this allows me to use my panel system-wide and not only in-game, which means I can control a multiboot menu, play with emulators etc..).
 
@@ -12,7 +12,7 @@ In combination with the PN5180-cardio project, the whole IO from a Pop'n Music c
 
 This code was originally written for Arduino Due but is also compatible with Leonardo without any change required.
 
-Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, but you might want to have a look at the ambilight branch for ws2812b side/top lamps).
+Due to lack of gpio, in this case there's only 11 buttons and 9 lights, no keypad support, and reactive mode won't include AC light simulation (there's no side or top lamps, but you might want to have a look at the ambilight branch for ws2812b side/top lamps). However, there is **Playstation compatibility** as well.
 
 I'm also taking advantage of the Leonardo EEPROM. On manually switching, the resulting lightmode is stored in the EEPROM so that it persists on controller disconnect/reconnect.
 
@@ -35,6 +35,8 @@ As I needed more gpio than usual, this project was my first time working with Ar
 The keypad code uses the Keypad library by Mark Stanley and Alexander Brevig.
 
 Switch debouncing is done with Bounce2 library by Thomas O Fredericks.
+
+Playstation compatibility uses parts of progmem's excellent https://github.com/progmem/re-usbemani/ project
 
 # Supported devices and requirements
 
@@ -127,9 +129,17 @@ Arduino Leonardo has 5V logic therefore one can directly connect 5V leds to it.
 
 ![pinout](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo.png?raw=true)
 
-Arduino Leonardo version is also compatible with Playstation and Playstation 2 (it can be made to be plugged directly to the controller port, please refer to the PSX branch for more information).
+## Playstation compatibility
 
-## Donation
+Arduino Leonardo version is also compatible with Playstation and Playstation 2 (it can be made to be plugged directly to the controller port, using the following pinout).
+
+![pinout_psx](https://github.com/CrazyRedMachine/UltimatePopnController/blob/master/pinout_leonardo_psx.png?raw=true)
+
+LEDs will be dimmer due to 3.3v power. Using the 7V rumble motor line to Vin instead, and using NPN transistors like 2N2222A on MISO and ACK lines to prevent backfeeding voltage into the console will solve the issue (set INVERT_CIPO and INVERT_ACK to 1 in `ps2.c`).
+
+**BEWARE: DO NOT PLUG USB AND PSX AT THE SAME TIME, THIS CAN DAMAGE YOUR CONSOLE**
+
+# Donation
 
 If this project helps you and you want to give back, you can help me with my future projects.
 

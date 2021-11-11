@@ -5,11 +5,23 @@
 #include <Keyboard.h>
 #else
 #include <EEPROM.h>
+#define WITH_PSX 1
+#if WITH_PSX == 1
+#include "ps2.h"
 #endif
+#endif
+
 #include "POPNHID.h"
+
+#if defined(ARDUINO_ARCH_SAM)
 /* 1 frame (as declared in POPNHID.cpp) on highspeed USB spec is 125µs */
-#define REPORT_DELAY 125
-#define MILLIDEBOUNCE 15
+#define REPORT_DELAY 120
+#else
+/* 1 frame (as declared in POPNHID.cpp) on fullspeed USB spec is 1ms */
+#define REPORT_DELAY 995
+#endif
+
+#define MILLIDEBOUNCE 5
 POPNHID_ POPNHID;
 
 /* Buttons + Lights declarations */
@@ -26,6 +38,8 @@ const byte ButtonCount = sizeof(ButtonPins) / sizeof(ButtonPins[0]);
 const byte LightCount = sizeof(LightPins) / sizeof(LightPins[0]);
 Bounce buttons[ButtonCount];
 
+uint16_t buttonsState = 0;
+  
 #if defined(ARDUINO_ARCH_SAM)
 /* Keypad declarations */
 const byte ROWS = 4;
@@ -95,6 +109,24 @@ void setup() {
   if (lightMode > 4)
     lightMode = 2;
   POPNHID.setLightMode(lightMode);
+
+#if WITH_PSX == 1
+  PS2_MapInput(&buttonsState, (1<<0),  PS2_TRIANGLE);
+  PS2_MapInput(&buttonsState, (1<<1),  PS2_CIRCLE);
+  PS2_MapInput(&buttonsState, (1<<2),  PS2_R1);
+  PS2_MapInput(&buttonsState, (1<<3),  PS2_CROSS);
+  PS2_MapInput(&buttonsState, (1<<4),  PS2_L1);
+  PS2_MapInput(&buttonsState, (1<<5),  PS2_SQUARE);
+  PS2_MapInput(&buttonsState, (1<<6),  PS2_R2);
+  PS2_MapInput(&buttonsState, (1<<7),  PS2_UP);
+  PS2_MapInput(&buttonsState, (1<<8),  PS2_L2);
+  PS2_MapInput(&buttonsState, (1<<9),  PS2_SELECT);
+  PS2_MapInput(&buttonsState, (1<<10), PS2_START);
+  PS2_AlwaysInput(PS2_LEFT|PS2_DOWN|PS2_RIGHT);
+  
+  PS2_Init();
+#endif
+
 #endif
   //boot animation
   uint16_t anim[] = {1, 4, 16, 64, 256, 128, 32, 8, 2};
@@ -107,20 +139,26 @@ void setup() {
 
 /* LOOP */
 unsigned long lastReport = 0;
-uint32_t prevButtonsState = 0;
+uint16_t prevButtonsState = 0;
 bool modeChanged = false;
 void loop() {
   /* BUTTONS */
-  uint32_t buttonsState = 0;
+  buttonsState = 0;
   for (int i = 0; i < ButtonCount; i++) {
        buttons[i].update();
        int value = buttons[i].read();
     if (value != HIGH){
-      buttonsState |= (uint32_t)1 << i;
+      buttonsState |= (uint16_t)1 << i;
     } else {
-      buttonsState &= ~((uint32_t)1 << i);
+      buttonsState &= ~((uint16_t)1 << i);
     }
   }
+
+#if defined(ARDUINO_ARCH_AVR)
+#if WITH_PSX == 1
+ PS2_Task();
+#endif
+#endif
 
   /* USB DATA */
   if ( ( (micros() - lastReport) >= REPORT_DELAY) )
@@ -131,7 +169,7 @@ void loop() {
     
     //check for HID-requested lightmode change
     POPNHID.updateLightMode();
-  }  
+  }
   
   /* LAMPS */
   uint8_t mode = POPNHID.getLightMode();
