@@ -334,20 +334,20 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
     g_dip_state |= 0x08;
 #endif
     /* light up each part of the cab in a wave pattern to get visual confirmation the device is working */
-	// light neons
+    // light neons
     for (int i = 0; i<=4; i++){
 		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
 		Sleep(300);
     }
-	// light side lamps
+    // light side lamps
     for (int i = 8; i<=11; i++){
 		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
 		Sleep(300);
     }
-	// light on coin blocker
+    // light on coin blocker
 	controller_write_leds((uint32_t) 0x00000000);
 	Sleep(1000);
-	// loin buttons
+    // light buttons
     for (int i = 23; i<=31; i++){
 		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
 		Sleep(300);
