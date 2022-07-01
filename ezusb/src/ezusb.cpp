@@ -334,7 +334,7 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
     g_dip_state |= 0x08;
 #endif
     /* light up each part of the cab in a wave pattern to get visual confirmation the device is working */
-    for (int i = 0; i<=31; i++){
+    for (int i = 0; i<32; i++){
         if ((i > 4 && i < 8) || (i > 11 && i < 23)) { // unused bits
             continue;
         }
