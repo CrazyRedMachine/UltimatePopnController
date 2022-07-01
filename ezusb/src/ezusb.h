@@ -1,13 +1,6 @@
 #ifndef EZUSB_UPC_EZUSB_H
 #define EZUSB_UPC_EZUSB_H
 
-/* Pop'n Music Adventure ezusb.dll was compiled in C and thus used unmangled function names
- * set this POPN15_FORMAT to 1 to compile a compatible version */
-#define POPN15_FORMAT 0
-
-#if POPN15_FORMAT == 1
-extern "C" {
-#endif
 __declspec(dllexport) int __cdecl usbCheckAlive();
 __declspec(dllexport) int __cdecl usbCheckSecurityNew(int i);
 __declspec(dllexport) int __cdecl usbCoinGet(int i);
@@ -30,8 +23,5 @@ __declspec(dllexport) int __cdecl usbStart(int i);
 __declspec(dllexport) int __cdecl usbWdtReset();
 __declspec(dllexport) int __cdecl usbWdtStart(int i);
 __declspec(dllexport) int __cdecl usbWdtStartDone();
-#if POPN15_FORMAT == 1
-}
-#endif
 
 #endif //EZUSB_UPC_EZUSB_H

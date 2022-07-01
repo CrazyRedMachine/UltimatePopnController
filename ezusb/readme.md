@@ -8,9 +8,7 @@ For ease of use I included pre-compiled dll working on WinXP Embedded (for offic
 
 Replace the game ezusb.dll file with this one and the game will read input and send lights to your Arduino as if it were the original IOBoard.
 
-Pop'n Music Adventure used a different dll format so you have to set a flag in `ezusb.h` for the dll to compile in a way that will work with this game.
-
-The dll makes the lights turn on for 1 sec on load so you'll know if the game managed to load your device.
+The dll makes the lights turn on in a wave pattern during the game's i/o check, so you'll know if it managed to load your device.
 
 ## How to retrieve devicepath
 
