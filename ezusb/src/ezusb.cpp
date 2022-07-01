@@ -336,21 +336,21 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
     /* light up each part of the cab in a wave pattern to get visual confirmation the device is working */
     // light neons
     for (int i = 0; i<=4; i++){
-		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
-		Sleep(300);
+        controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
+        Sleep(300);
     }
     // light side lamps
     for (int i = 8; i<=11; i++){
-		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
-		Sleep(300);
+        controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
+        Sleep(300);
     }
     // light on coin blocker
-	controller_write_leds((uint32_t) 0x00000000);
-	Sleep(1000);
+    controller_write_leds((uint32_t) 0x00000000);
+    Sleep(1000);
     // light buttons
     for (int i = 23; i<=31; i++){
-		controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
-		Sleep(300);
+        controller_write_leds((uint32_t) ((1 << i) | (0xF << 16)));
+        Sleep(300);
     }
 
 #ifdef DEBUG
