@@ -5,10 +5,12 @@
 #include <Keyboard.h>
 #else
 #include <EEPROM.h>
-#define WITH_PSX 1
+
+#define WITH_PSX 0 //enable PSX compatibility
 #if WITH_PSX == 1
 #include "ps2.h"
 #endif
+
 #endif
 
 #include "POPNHID.h"
