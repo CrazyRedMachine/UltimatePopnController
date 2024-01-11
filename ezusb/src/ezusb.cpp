@@ -229,10 +229,6 @@ static int controller_write_leds(int32_t lamp_bits){
 
 /* EZUSB EXPORTS */
 
-#ifdef POPN15_FORMAT
-extern "C" {
-#endif
-
 __declspec(dllexport) int __cdecl usbCheckAlive() {
     return 1;
 }
@@ -337,11 +333,14 @@ __declspec(dllexport) int __cdecl usbStart(int i) {
 #ifdef FORCE_DIP4
     g_dip_state |= 0x08;
 #endif
-    /* light everything for 1 sec to get visual confirmation
-     * the device is working */
-    controller_write_leds((uint32_t) 0xFFFFFFFF);
-    Sleep(1000);
-    controller_write_leds((uint32_t) 0x00000000);
+    /* light up each part of the cab in a wave pattern to get visual confirmation the device is working */
+    for (int i = 0; i<32; i++){
+        if ((i > 4 && i < 8) || (i > 11 && i < 23)) { // unused bits
+            continue;
+        }
+        controller_write_leds((uint32_t) 1 << i);
+        Sleep(300);
+    }
 
 #ifdef DEBUG
     printf("Managed to open device %x\n",g_hid_handle);
@@ -361,11 +360,6 @@ __declspec(dllexport) int __cdecl usbWdtStart(int i) {
 __declspec(dllexport) int __cdecl usbWdtStartDone() {
     return 0;
 }
-
-#ifdef POPN15_FORMAT
-}
-#endif
-
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  fdwReason,
